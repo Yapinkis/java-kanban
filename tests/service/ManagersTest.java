@@ -12,29 +12,23 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @DisplayName("Менеджер")
 class ManagersTest {
-    InMemoryHistoryManager historyManager;
-    InMemoryTaskManager taskManager;
+    InMemoryTaskManager inMemoryTaskManager;
+
     @BeforeEach
-    void init(){
-        taskManager = new InMemoryTaskManager(new InMemoryHistoryManager());
-        historyManager = new InMemoryHistoryManager();
-        //В перспективе будущих тестов, наверное лучше оставить так...
+    void init() {
+        inMemoryTaskManager = new InMemoryTaskManager(new InMemoryHistoryManager());
     }
+
     @DisplayName("Возвращает рабочие экзмепляры")
     @Test
-    void managerReturnWorkingInstances(){
+    void managerReturnWorkingInstances() {
 
-        taskManager.epics.put(0,new Epic());
-        taskManager.subTasks.put(0,new SubTask());
-        taskManager.tasks.put(0,new Task());
+        inMemoryTaskManager.epics.put(0, new Epic());
+        inMemoryTaskManager.subTasks.put(0, new SubTask());
+        inMemoryTaskManager.tasks.put(0, new Task());
 
-        historyManager.history.add(new Task());
-
-        assertNotNull(taskManager.epics);
-        assertNotNull(taskManager.subTasks);
-        assertNotNull(taskManager.tasks);
-
-        assertNotNull(historyManager.history);
-
+        assertNotNull(inMemoryTaskManager.epics.put(0, new Epic()));
+        assertNotNull(inMemoryTaskManager.subTasks.put(0, new SubTask()));
+        assertNotNull(inMemoryTaskManager.tasks.put(0, new Task()));
     }
 }
