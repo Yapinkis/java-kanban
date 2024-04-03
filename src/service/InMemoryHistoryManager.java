@@ -65,10 +65,10 @@ public class InMemoryHistoryManager implements HistoryManager {
 
     @Override
     public ArrayList<Task> getHistory() {
-        ArrayList<Task> tasks = new ArrayList<>();
+        ArrayList<Task> history = new ArrayList<>();
         for (Map.Entry<Integer,Node> entry : linkedMap.entrySet()) {
-            tasks.add(entry.getValue().getTask());
+            history.add(entry.getValue().getTask());
         }
-        return tasks;
+        return history;
     }
 }
