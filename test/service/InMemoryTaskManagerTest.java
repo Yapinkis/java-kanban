@@ -9,8 +9,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -39,7 +37,6 @@ class InMemoryTaskManagerTest {
         assertNotNull(taskManager.getIdSubtasks(subTask.getId()));
         assertNotNull(taskManager.getIdTask(task.getId()));
     }
-
     @DisplayName("Их поиск по Id")
     @Test
     void canFindById() {
@@ -60,7 +57,6 @@ class InMemoryTaskManagerTest {
         assertEquals(subTask, foundSubTask);
         assertEquals(task, foundTask);
     }
-
     @DisplayName("Проверка конфликта сгенерированного и заданного Id")
     @Test
     void compareGenerateIdAndSetId() {
@@ -73,10 +69,9 @@ class InMemoryTaskManagerTest {
         inMemoryTaskManager.createTask(task_1);
         inMemoryTaskManager.createTask(task_2);
 
-        task_2.setId(inMemoryTaskManager.generateId() + random.nextInt(inMemoryTaskManager.tasks.size()));
+        task_2.setId(inMemoryTaskManager.generateId() + random.nextInt(inMemoryTaskManager.getAllTasks().size()));
         assertNotEquals(task_1.getId(), task_2.getId());
     }
-
     @DisplayName("Неизменность задач по полям при добавлении в Manager")
     @Test
     void cantFixCreatedPropertys() {
@@ -94,7 +89,6 @@ class InMemoryTaskManagerTest {
         assertEquals(taskCopy.getDescription(), task.getDescription());
         assertEquals(taskCopy.getStatus(), task.getStatus());
     }
-
     @Test
     @DisplayName("Проверка калькуляции статуса Эпика")
     void showCalculateEpicStatus() {
@@ -172,7 +166,5 @@ class InMemoryTaskManagerTest {
         assertNotEquals(descriptionEpic,epic.getDescription());
 
     }
-
-
 
 }
