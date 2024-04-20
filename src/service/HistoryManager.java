@@ -1,7 +1,7 @@
 package service;
 
-import model.Node;
 import model.Task;
+import service.InMemoryHistoryManager.Node;
 import java.util.List;
 
 public interface HistoryManager {

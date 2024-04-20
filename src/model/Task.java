@@ -79,4 +79,13 @@ public class Task {
                 Objects.equals(getDescription(), task.getDescription());
     }
 
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((id == 0) ? 0 : id);
+        result = prime * result + ((id == 0) ? 0 : name.hashCode());
+        return result;
+    }
+
 }

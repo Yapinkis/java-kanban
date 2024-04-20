@@ -49,4 +49,13 @@ public class Epic extends Task {
                 Objects.equals(getDescription(), epic.getDescription()) &&
                 Objects.equals(getSubTasks(), epic.getSubTasks());
     }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 20;
+        result = prime * result + ((getId() == 0) ? 0 : getId());
+        result = prime * result + ((getId() == 0) ? 0 : getName().hashCode());
+        return result;
+    }
 }

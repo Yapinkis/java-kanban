@@ -1,25 +1,62 @@
 package service;
 
-import model.Node;
 import model.Task;
-
 import java.util.*;
 
 public class InMemoryHistoryManager implements HistoryManager {
-    LinkedHashMap<Integer, Node> linkedMap;
-    Node head;
-    Node tail;//Я же правильно понял, что linkedMap, head и tail мы реализуем в классе InMemoryHistoryManager
-    //А в классе Node оставляем непосредственно узлы связи Node?
+    private Map<Integer, Node> linkedMap;
+    private Node head;
+    private Node tail;
+    //На самом деле, модификатор не указал по неопытности...Имеет смысл их сделать private
 
-    public InMemoryHistoryManager() {
-        this.linkedMap = new LinkedHashMap<>();
-        this.head = null;
-        this.tail = null;
+    protected static class Node {
+        private Task task;
+        private Node prev;
+        private Node next;
+
+        public Node(Task task) {
+            this.task = task;
+            this.prev = null;
+            this.next = null;
+        }
+
+        public void prevNode(Node prev) {
+            this.prev = prev;
+        }
+
+        public void nextNode(Node next) {
+            this.next = next;
+        }
+
+        public Task getTask() {
+            return task;
+        }
+
+        public Node getNext() {
+            return next;
+        }
+
+        public Node getPrev() {
+            return prev;
+        }
+
+        //Насколько это правильно, учитывая то, что все модели с данными у нас храняться в диреткории model?
+        //И это нормальная практика, использовать вложенные классы?
+        //Если сделать класс private то в тестовой директории не получится получить к нему доступ через импорты
+        //Допустимо ли сделать модификатор protected
     }
 
-    public LinkedHashMap<Integer,Node> getLinkedMap(InMemoryHistoryManager map) {
-        return map.linkedMap;
+    public Node getHead() {
+        return head;
     }
+
+    public Node getTail() {
+        return tail;
+    }
+
+    public Map<Integer,Node> getMap() {
+        return new HashMap<>(linkedMap);
+    } //Я так понял, что нужно возвращать копию мапы, тем самым не давая доступ к основным её данным
 
     public void linkLast(Task task) {
         Node createNode = new Node(task);
@@ -33,20 +70,22 @@ public class InMemoryHistoryManager implements HistoryManager {
         }
         linkedMap.put(task.getId(), createNode);
     }
-    //Правильно ли я понял из ТЗ, что теперь переопределённые методы интерфейса HistoryManager, теперь выглядят так.
-    //Просто получается, что вся история просмотров теперь у нас хранится в мапе и имеет устройство двусвязного списка
-    //С инкапсулированными методами. Зачем наличие других методов add, remove, getHistory просто не понятно...
 
-    @Override
-    public void remove(Node node) {
+    public InMemoryHistoryManager() {
+        this.linkedMap = new HashMap<>();
+        this.head = null;
+        this.tail = null;
+    }
+
+    private void removeNode(Node node) {
         if (node == head && node == tail) {
             head = null;
             tail = null;
         } else if (node == head) {
-            head.nextNode(head);
+            head = head.getNext();
             head.prevNode(null);
         } else if (node == tail) {
-            tail.prevNode(tail);
+            tail = tail.getPrev();
             tail.nextNode(null);
         } else {
             node.getPrev().nextNode(node.getNext());
@@ -55,20 +94,38 @@ public class InMemoryHistoryManager implements HistoryManager {
         linkedMap.remove(node.getTask().getId());
     }
 
-    @Override
-    public void add(Task task) {
+    private void addNode(Task task) {
         if (linkedMap.containsKey(task.getId())) {
             remove(linkedMap.get(task.getId()));
         }
         linkLast(task);
     }
 
-    @Override
-    public ArrayList<Task> getHistory() {
+    private ArrayList<Task> getHistoryNode() {
         ArrayList<Task> history = new ArrayList<>();
-        for (Map.Entry<Integer,Node> entry : linkedMap.entrySet()) {
-            history.add(entry.getValue().getTask());
+        Node current = head;
+        while (current != null) {
+            history.add(current.getTask());
+            current = current.getNext();
         }
         return history;
     }
+
+
+    @Override
+    public void add(Task task) {
+        addNode(task);
+    } //Кажется я понял, это инкапсуляция чистой воды....наверное)
+
+    @Override
+    public void remove(Node node) {
+        removeNode(node);
+    }
+
+    @Override
+    public List<Task> getHistory() {
+        return getHistoryNode();
+    }
+
+
 }

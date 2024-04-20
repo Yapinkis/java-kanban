@@ -13,19 +13,11 @@ public class Main {
         inMemoryTaskManager.createTask(new Task("2ne","Split"));
         inMemoryTaskManager.createTask(new Task("3ne","Split"));
         inMemoryTaskManager.createTask(new Task("4ne","Split"));
-        inMemoryTaskManager.getIdTask(0);
-        inMemoryTaskManager.getIdTask(0);
-        inMemoryTaskManager.getIdTask(1);
-        inMemoryTaskManager.getIdTask(1);
-        inMemoryTaskManager.getIdTask(1);
         inMemoryTaskManager.getIdTask(2);
-        inMemoryTaskManager.getIdTask(2);
-        inMemoryTaskManager.getIdTask(2);
-        inMemoryTaskManager.getIdTask(3);
+        inMemoryTaskManager.getIdTask(1);
         inMemoryTaskManager.getIdTask(3);
         inMemoryTaskManager.getIdTask(2);
-        HistoryManager historyManager = inMemoryTaskManager.getHistoryManager();
-        List<Task> history = historyManager.getHistory();
-        System.out.println(history);
+        List<Task> historyManager = inMemoryTaskManager.getHistoryManager();
+        System.out.println(historyManager);
     }
 }

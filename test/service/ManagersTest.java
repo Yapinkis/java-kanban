@@ -12,23 +12,23 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @DisplayName("Менеджер")
 class ManagersTest {
-    InMemoryTaskManager inMemoryTaskManager;
+    TaskManager taskManager;
 
     @BeforeEach
     void init() {
-        inMemoryTaskManager = new InMemoryTaskManager(new InMemoryHistoryManager());
+        taskManager = Managers.getDefault();
     }
 
     @DisplayName("Возвращает рабочие экзмепляры")
     @Test
     void managerReturnWorkingInstances() {
 
-        inMemoryTaskManager.epics.put(0, new Epic());
-        inMemoryTaskManager.subTasks.put(0, new SubTask());
-        inMemoryTaskManager.tasks.put(0, new Task());
+        taskManager.createEpic(new Epic("Test_Epic"));
+        taskManager.createSubTask(new SubTask("Test_SubTask"));
+        taskManager.createTask(new Task("Test_Task"));
 
-        assertNotNull(inMemoryTaskManager.epics.put(0, new Epic()));
-        assertNotNull(inMemoryTaskManager.subTasks.put(0, new SubTask()));
-        assertNotNull(inMemoryTaskManager.tasks.put(0, new Task()));
+        assertNotNull(taskManager.getAllEpics());
+        assertNotNull(taskManager.getAllSubTasks());
+        assertNotNull(taskManager.getAllTasks());
     }
 }

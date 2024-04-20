@@ -11,10 +11,11 @@ import java.util.List;
 import java.util.Map;
 
 public class InMemoryTaskManager implements TaskManager {
-    Map<Integer, Task> tasks;//Я так понимаю, что такой подход позволит нам сделать любую реализацию
-    //Map в конструкторе, как LinkedHashMap или TreeMap допустим
-    Map<Integer, Epic> epics;
-    Map<Integer, SubTask> subTasks;
+    private Map<Integer, Task> tasks;//Я оставил поля открытыми т.к. нам на одном из вебинаров говорили, что
+    //что это допустимо, почему, не помню....но я могу поискать этот момент. С точик зрения безопасности, да. наверное
+    //так делать не стоит
+    private Map<Integer, Epic> epics;
+    private Map<Integer, SubTask> subTasks;
     private int seq = 0;
 
     int generateId() {
@@ -30,8 +31,8 @@ public class InMemoryTaskManager implements TaskManager {
         this.historyManager = historyManager;
     }
 
-    public HistoryManager getHistoryManager() {
-        return historyManager;
+    public List<Task> getHistoryManager() {
+        return historyManager.getHistory();
     }
 
     //Набор метододов для задач Tasks
@@ -74,6 +75,7 @@ public class InMemoryTaskManager implements TaskManager {
     public void deleteTask(int id) {
         tasks.remove(id);
     }
+    //Да, отобразил проверку в тесте afterDeletingTaskInformationAboutItRemainsInHistory
 
     //Набор метододов для подзадач SubTasks
     @Override

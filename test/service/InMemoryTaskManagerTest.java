@@ -69,7 +69,7 @@ class InMemoryTaskManagerTest {
         inMemoryTaskManager.createTask(task_1);
         inMemoryTaskManager.createTask(task_2);
 
-        task_2.setId(inMemoryTaskManager.generateId() + random.nextInt(inMemoryTaskManager.tasks.size()));
+        task_2.setId(inMemoryTaskManager.generateId() + random.nextInt(inMemoryTaskManager.getAllTasks().size()));
         assertNotEquals(task_1.getId(), task_2.getId());
     }
     @DisplayName("Неизменность задач по полям при добавлении в Manager")

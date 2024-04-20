@@ -42,5 +42,14 @@ public class SubTask extends Task {
                 Objects.equals(getEpic(), subTask.getEpic());
     }
 
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 10;
+        result = prime * result + ((getId() == 0) ? 0 : getId());
+        result = prime * result + ((getId() == 0) ? 0 : getName().hashCode());
+        return result;
+    }
+
 
 }

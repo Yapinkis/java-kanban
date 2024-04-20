@@ -1,27 +1,25 @@
 package service;
 
 import model.Epic;
-import model.Node;
 import model.SubTask;
 import model.Task;
+import service.InMemoryHistoryManager.Node;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 @DisplayName("Работа: In Memory History Manager")
 class InMemoryHistoryManagerTest {
     TaskManager taskManager;
-    HistoryManager historyManager;
     InMemoryHistoryManager inMemoryHistoryManager;
     @BeforeEach
     void init(){
         taskManager = Managers.getDefault();
-        historyManager = taskManager.getHistoryManager();
         inMemoryHistoryManager = new InMemoryHistoryManager();
     }
 
@@ -39,14 +37,14 @@ class InMemoryHistoryManagerTest {
         inMemoryHistoryManager.linkLast(task1);
         inMemoryHistoryManager.linkLast(task2);
 
-        Node head = inMemoryHistoryManager.linkedMap.get(task1.getId());
-        Node tailBeforeAdd = inMemoryHistoryManager.linkedMap.get(task2.getId());
+        InMemoryHistoryManager.Node head = inMemoryHistoryManager.getMap().get(task1.getId());
+        InMemoryHistoryManager.Node tailBeforeAdd = inMemoryHistoryManager.getMap().get(task2.getId());
 
         inMemoryHistoryManager.linkLast(task3);
 
-        Node tailAfterAdd = inMemoryHistoryManager.linkedMap.get(task3.getId());
+        InMemoryHistoryManager.Node tailAfterAdd = inMemoryHistoryManager.getMap().get(task3.getId());
 
-        assertEquals(head, inMemoryHistoryManager.head);
+        assertEquals(head, inMemoryHistoryManager.getHead());
         assertNotEquals(tailBeforeAdd,tailAfterAdd);
     }
     @DisplayName("Проверка заполнения узлов списка")
@@ -68,9 +66,9 @@ class InMemoryHistoryManagerTest {
         inMemoryHistoryManager.linkLast(task4);
         inMemoryHistoryManager.linkLast(task1);
 
-        Node preNode = inMemoryHistoryManager.linkedMap.get(task3.getId());
-        Node Node = inMemoryHistoryManager.linkedMap.get(task2.getId());
-        Node lastNode = inMemoryHistoryManager.linkedMap.get(task4.getId());
+        Node preNode = inMemoryHistoryManager.getMap().get(task3.getId());
+        Node Node = inMemoryHistoryManager.getMap().get(task2.getId());
+        Node lastNode = inMemoryHistoryManager.getMap().get(task4.getId());
 
         assertNotNull(preNode);
         assertNotNull(Node);
@@ -121,26 +119,16 @@ class InMemoryHistoryManagerTest {
         Task task_1_1 = new Task("Task_1_1","Test");
         Task task_1_2 = new Task("Task_1_2","Test");
 
-        taskManager.createEpic(epic_1);
-        taskManager.createSubTask(subTask_1_1);
-        taskManager.createSubTask(subTask_1_2);
-        taskManager.createTask(task_1_1);
-        taskManager.createTask(task_1_2);
+        inMemoryHistoryManager.add(epic_1);
+        inMemoryHistoryManager.add(subTask_1_1);
+        inMemoryHistoryManager.add(subTask_1_2);
+        inMemoryHistoryManager.add(task_1_1);
+        inMemoryHistoryManager.add(task_1_2);
 
-        historyManager.add(epic_1);
-        historyManager.add(subTask_1_1);
-        historyManager.add(subTask_1_2);
-        historyManager.add(task_1_1);
-        historyManager.add(task_1_2);
-
-        int beforeDel = historyManager.getHistory().size();
-        LinkedHashMap<Integer, Node> map = inMemoryHistoryManager.getLinkedMap((InMemoryHistoryManager)
-                historyManager);
-        //Насколько вообще разумно делать подобные апкасты???
-        historyManager.remove(map.get(epic_1.getId()));
-        //Почему после апкаста у меня появился доступ к полям класса InMemoryTaskManager?
-        //historyManager получается теперь приведён полностью к классу InMemoryTaskManager?
-        int afterDel = historyManager.getHistory().size();
+        int beforeDel = inMemoryHistoryManager.getHistory().size();
+        Map<Integer, Node> map = inMemoryHistoryManager.getMap();
+        inMemoryHistoryManager.remove(map.get(epic_1.getId()));
+        int afterDel = inMemoryHistoryManager.getHistory().size();
         assertNotEquals(beforeDel, afterDel);
     }
     @DisplayName("Проверка отсутствия дублирования задач и их количества")
@@ -160,22 +148,22 @@ class InMemoryHistoryManagerTest {
 
         int tasksCount = 0;
 
-        historyManager.add(epic_1);
+        inMemoryHistoryManager.add(epic_1);
         ++tasksCount;
-        historyManager.add(subTask_1_1);
+        inMemoryHistoryManager.add(subTask_1_1);
         ++tasksCount;
-        historyManager.add(subTask_1_2);
+        inMemoryHistoryManager.add(subTask_1_2);
         ++tasksCount;
-        historyManager.add(task_1_1);
+        inMemoryHistoryManager.add(task_1_1);
         ++tasksCount;
-        historyManager.add(task_1_2);
+        inMemoryHistoryManager.add(task_1_2);
         ++tasksCount;
-        historyManager.add(task_1_1);
+        inMemoryHistoryManager.add(task_1_1);
         ++tasksCount;
-        historyManager.add(task_1_2);
+        inMemoryHistoryManager.add(task_1_2);
         ++tasksCount;//Возможно дублирование ++tasksCount не самый хороший подход в тестировании...
-        int historySize = historyManager.getHistory().size();
-        List<Task> history = historyManager.getHistory();
+        int historySize = inMemoryHistoryManager.getHistory().size();
+        List<Task> history = inMemoryHistoryManager.getHistory();
 
         assertNotEquals(historySize,tasksCount);
         for(int i = 0;i < history.size();i++){
@@ -201,13 +189,13 @@ class InMemoryHistoryManagerTest {
         taskManager.createTask(task_1_1);
         taskManager.createTask(task_1_2);
 
-        historyManager.add(epic_1);
-        historyManager.add(subTask_1_1);
-        historyManager.add(subTask_1_2);
-        historyManager.add(task_1_1);
-        historyManager.add(task_1_2);
+        inMemoryHistoryManager.add(epic_1);
+        inMemoryHistoryManager.add(subTask_1_1);
+        inMemoryHistoryManager.add(subTask_1_2);
+        inMemoryHistoryManager.add(task_1_1);
+        inMemoryHistoryManager.add(task_1_2);
 
-        List<Task> tasks = historyManager.getHistory();
+        List<Task> tasks = inMemoryHistoryManager.getHistory();
 
         assertEquals(tasks.get(0),epic_1);
         assertEquals(tasks.get(1),subTask_1_1);
@@ -227,29 +215,61 @@ class InMemoryHistoryManagerTest {
         taskManager.createEpic(epic_1);
         taskManager.createSubTask(subTask_1_1);
         taskManager.createSubTask(subTask_1_2);
-        taskManager.createTask(task_1_1);
         taskManager.createTask(task_1_2);
+        taskManager.createTask(task_1_1);
 
-        historyManager.add(epic_1);
-        historyManager.add(subTask_1_1);
-        historyManager.add(subTask_1_2);
-        historyManager.add(task_1_1);
-        historyManager.add(task_1_2);
+        inMemoryHistoryManager.add(epic_1);
+        inMemoryHistoryManager.add(subTask_1_2);
+        inMemoryHistoryManager.add(subTask_1_1);
+        inMemoryHistoryManager.add(task_1_1);
+        inMemoryHistoryManager.add(task_1_2);
 
-        List<Task> oldHistory = historyManager.getHistory();
+        List<Task> oldHistory = inMemoryHistoryManager.getHistory();
 
-        historyManager.add(task_1_2);
-        historyManager.add(task_1_1);
-        historyManager.add(subTask_1_1);
-        historyManager.add(subTask_1_2);
-        historyManager.add(epic_1);
+        inMemoryHistoryManager.add(task_1_2);
+        inMemoryHistoryManager.add(task_1_1);
+        inMemoryHistoryManager.add(subTask_1_2);
+        inMemoryHistoryManager.add(subTask_1_1);
+        inMemoryHistoryManager.add(epic_1);
 
-        List<Task> newHistory = historyManager.getHistory();
-        int historySize = historyManager.getHistory().size();
+        List<Task> newHistory = inMemoryHistoryManager.getHistory();
+        int historySize = inMemoryHistoryManager.getHistory().size();
 
         for(int i = 0;i < historySize;i++){
             assertNotEquals(oldHistory.get(i),newHistory.get(i));
         }
+    }
+    @DisplayName("После удаления задачи, она остаётся в истории")
+    @Test
+    void afterDeletingTaskInformationAboutItRemainsInHistory(){
+        Epic epic_1 = new Epic("Epic_1","Test");
+        SubTask subTask_1_1 = new SubTask("SubTask_1_1","Test");
+        SubTask subTask_1_2 = new SubTask("SubTask_1_2","Test");
+        Task task_1_1 = new Task("Task_1_1","Test");
+        Task task_1_2 = new Task("Task_1_2","Test");
 
+        taskManager.createEpic(epic_1);
+        taskManager.createSubTask(subTask_1_1);
+        taskManager.createSubTask(subTask_1_2);
+        taskManager.createTask(task_1_2);
+        taskManager.createTask(task_1_1);
+
+        List<Task> oldHistory = inMemoryHistoryManager.getHistory();
+        int oldTasksSize = taskManager.getAllTasks().size() + taskManager.getAllSubTasks().size() +
+                taskManager.getAllEpics().size();
+
+        taskManager.deleteTask(task_1_1.getId());
+
+        List<Task> newHistory = inMemoryHistoryManager.getHistory();
+        int historySize = inMemoryHistoryManager.getHistory().size();
+        int newTasksSize = taskManager.getAllTasks().size() + taskManager.getAllSubTasks().size() +
+                taskManager.getAllEpics().size();
+
+        //Проверяем истории
+        for(int i = 0;i < historySize;i++){
+            assertEquals(oldHistory.get(i),newHistory.get(i));
+        }
+        //Проверяем количество задач
+        assertNotEquals(newTasksSize,oldTasksSize);
     }
 }

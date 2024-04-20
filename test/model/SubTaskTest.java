@@ -70,7 +70,5 @@ class SubTaskTest {
         assertEquals(subTask1.getId(), subTask2.getId(),
                 String.format("Идентификатор эпиков не совпадает, ошибка в параметре Id: %s. " +
                         "Фактическое значение: %s", subTask1.getId(), subTask2.getId()));
-        //Наверное можно было это всё как-то реализовать через метод equals, который я перопределил в SubTask, но я так
-        //и не понял, как лучше его реализовать. Потратил кучу времени, но всегда натыкался на ошибку StackOverflowError
     }
 }

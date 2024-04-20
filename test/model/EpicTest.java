@@ -46,7 +46,6 @@ class EpicTest {
         taskManager.createSubTask(subTask3);
         taskManager.createSubTask(subTask4);
         epic2.setId(epic1.getId());
-        //Устанавливаем одинаковое Id для Эпиков, что бы они были равны вне зависимости от генерации значения
 
         assertNotEquals(epic1,epic2);
     }
