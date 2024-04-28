@@ -7,7 +7,6 @@ public class InMemoryHistoryManager implements HistoryManager {
     private Map<Integer, Node> linkedMap;
     private Node head;
     private Node tail;
-    //На самом деле, модификатор не указал по неопытности...Имеет смысл их сделать private
 
     protected static class Node {
         private Task task;
@@ -40,10 +39,6 @@ public class InMemoryHistoryManager implements HistoryManager {
             return prev;
         }
 
-        //Насколько это правильно, учитывая то, что все модели с данными у нас храняться в диреткории model?
-        //И это нормальная практика, использовать вложенные классы?
-        //Если сделать класс private то в тестовой директории не получится получить к нему доступ через импорты
-        //Допустимо ли сделать модификатор protected
     }
 
     public Node getHead() {
@@ -56,7 +51,7 @@ public class InMemoryHistoryManager implements HistoryManager {
 
     public Map<Integer,Node> getMap() {
         return new HashMap<>(linkedMap);
-    } //Я так понял, что нужно возвращать копию мапы, тем самым не давая доступ к основным её данным
+    }
 
     public void linkLast(Task task) {
         Node createNode = new Node(task);
@@ -115,7 +110,7 @@ public class InMemoryHistoryManager implements HistoryManager {
     @Override
     public void add(Task task) {
         addNode(task);
-    } //Кажется я понял, это инкапсуляция чистой воды....наверное)
+    }
 
     @Override
     public void remove(Node node) {

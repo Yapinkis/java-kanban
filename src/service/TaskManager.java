@@ -41,7 +41,7 @@ public interface TaskManager {
 
     Epic getIdEpic(int id);
 
-    Epic createEpic(Epic epic);
+    Task createEpic(Epic epic);
 
     void updateEpic(Epic epic);
 
@@ -55,5 +55,5 @@ public interface TaskManager {
 
     List<SubTask> getAllSubTasksByEpic(Epic epic);
 
-    List<Task> getHistoryManager();
+    HistoryManager getHistoryManager();
 }

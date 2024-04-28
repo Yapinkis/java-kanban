@@ -8,6 +8,8 @@ public class Task {
     private String name;
     private String description;
     private EnumStatus status;
+    protected TasksStatus tStatus;//Посавил protected т.к. такой вариант мне показался более удобным, чем
+    //описывать дополнительные геттеры и сеттеры, или я не прав и нужно ыбло всё-таки делать private
 
     public Task() {
         this.status = EnumStatus.NEW;
@@ -15,18 +17,21 @@ public class Task {
 
     public Task(int id, String name, String description) {
         this.id = id;
+        this.tStatus = TasksStatus.TASK;
         this.name = name;
-        this.description = description;
         this.status = EnumStatus.NEW;
+        this.description = description;
     }
 
     public Task(String name, String description) {
+        this.tStatus = TasksStatus.TASK;
         this.name = name;
-        this.description = description;
         this.status = EnumStatus.NEW;
+        this.description = description;
     }
 
     public Task(String name) {
+        this.tStatus = TasksStatus.TASK;
         this.name = name;
         this.status = EnumStatus.NEW;
     }
@@ -61,6 +66,14 @@ public class Task {
 
     public void setStatus(EnumStatus status) {
         this.status = status;
+    }
+
+    public TasksStatus getTaskStatus() {
+        return tStatus;
+    }
+
+    public void setTaskStatus(TasksStatus status) {
+        this.tStatus = status;
     }
 
     @Override

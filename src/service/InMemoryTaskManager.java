@@ -1,9 +1,6 @@
 package service;
 
-import model.EnumStatus;
-import model.Epic;
-import model.SubTask;
-import model.Task;
+import model.*;
 
 import java.util.HashMap;
 import java.util.ArrayList;
@@ -11,9 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 public class InMemoryTaskManager implements TaskManager {
-    private Map<Integer, Task> tasks;//Я оставил поля открытыми т.к. нам на одном из вебинаров говорили, что
-    //что это допустимо, почему, не помню....но я могу поискать этот момент. С точик зрения безопасности, да. наверное
-    //так делать не стоит
+    private Map<Integer, Task> tasks;
     private Map<Integer, Epic> epics;
     private Map<Integer, SubTask> subTasks;
     private int seq = 0;
@@ -22,7 +17,7 @@ public class InMemoryTaskManager implements TaskManager {
         return ++seq;
     }
 
-    private HistoryManager historyManager;
+    protected HistoryManager historyManager;
 
     public InMemoryTaskManager(HistoryManager historyManager) {
         this.tasks = new HashMap<>();
@@ -31,9 +26,24 @@ public class InMemoryTaskManager implements TaskManager {
         this.historyManager = historyManager;
     }
 
-    public List<Task> getHistoryManager() {
-        return historyManager.getHistory();
+    public Map<Integer, Task> getTasks() {
+        return tasks;
     }
+
+    public Map<Integer, Epic> getEpics() {
+        return epics;
+    }
+
+    public Map<Integer, SubTask> getSubTasks() {
+        return subTasks;
+    }
+
+    public HistoryManager getHistoryManager() {
+        return historyManager;
+    }
+//    public List<Task> getHistoryManager() {
+//        return historyManager.getHistory();
+//    }
 
     //Набор метододов для задач Tasks
     @Override
@@ -59,6 +69,7 @@ public class InMemoryTaskManager implements TaskManager {
     public Task createTask(Task task) {
         task.setId(generateId());
         tasks.put(task.getId(), task);
+        historyManager.add(task);
         return task;
     }
 
@@ -75,7 +86,6 @@ public class InMemoryTaskManager implements TaskManager {
     public void deleteTask(int id) {
         tasks.remove(id);
     }
-    //Да, отобразил проверку в тесте afterDeletingTaskInformationAboutItRemainsInHistory
 
     //Набор метододов для подзадач SubTasks
     @Override
@@ -107,6 +117,7 @@ public class InMemoryTaskManager implements TaskManager {
         subTask.setEpic(epic);
         epic.addSubTasks(subTask);
         calculateEpic(epic);
+        historyManager.add(subTask);
         return subTask;
     }
 
@@ -152,10 +163,11 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public Epic createEpic(Epic epic) {
+    public Task createEpic(Epic epic) {
         epic.setId(generateId());
         epics.put(epic.getId(), epic);
-        return epic;
+        historyManager.add(epic);
+        return null;
     }
 
     @Override

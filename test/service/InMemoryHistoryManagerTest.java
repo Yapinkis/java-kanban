@@ -161,7 +161,7 @@ class InMemoryHistoryManagerTest {
         inMemoryHistoryManager.add(task_1_1);
         ++tasksCount;
         inMemoryHistoryManager.add(task_1_2);
-        ++tasksCount;//Возможно дублирование ++tasksCount не самый хороший подход в тестировании...
+        ++tasksCount;
         int historySize = inMemoryHistoryManager.getHistory().size();
         List<Task> history = inMemoryHistoryManager.getHistory();
 
@@ -188,6 +188,7 @@ class InMemoryHistoryManagerTest {
         taskManager.createSubTask(subTask_1_2);
         taskManager.createTask(task_1_1);
         taskManager.createTask(task_1_2);
+
 
         inMemoryHistoryManager.add(epic_1);
         inMemoryHistoryManager.add(subTask_1_1);

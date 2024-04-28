@@ -3,16 +3,15 @@ package model;
 import java.util.Objects;
 
 public class SubTask extends Task {
-    public SubTask() {
-        super();
-    }
 
     public SubTask(String name, String description) {
         super(name, description);
+        this.tStatus = TasksStatus.SUBTASK;
     }
 
     public SubTask(String name) {
         super(name);
+        this.tStatus = TasksStatus.SUBTASK;
     }
 
     private Epic epic;

@@ -8,17 +8,20 @@ public class Epic extends Task {
     private List<SubTask> subTasks;
 
     public Epic() {
+        this.tStatus = TasksStatus.EPIC;
         this.subTasks = new ArrayList<>();
     }
 
     public Epic(String name, String description) {
         super(name,description);
         this.subTasks = new ArrayList<>();
+        this.tStatus = TasksStatus.EPIC;
     }
 
     public Epic(String name) {
         super(name);
         this.subTasks = new ArrayList<>();
+        this.tStatus = TasksStatus.EPIC;
     }
 
     public List<SubTask> getSubTasks() {
