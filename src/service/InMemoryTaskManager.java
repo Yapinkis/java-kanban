@@ -41,9 +41,6 @@ public class InMemoryTaskManager implements TaskManager {
     public HistoryManager getHistoryManager() {
         return historyManager;
     }
-//    public List<Task> getHistoryManager() {
-//        return historyManager.getHistory();
-//    }
 
     //Набор метододов для задач Tasks
     @Override
@@ -84,6 +81,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void deleteTask(int id) {
+        //Да, отобразил проверку в тесте afterDeletingTaskInformationAboutItRemainsInHistory
         tasks.remove(id);
     }
 

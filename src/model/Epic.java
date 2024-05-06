@@ -46,6 +46,7 @@ public class Epic extends Task {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
         Epic epic = (Epic) o;
         return getId() == epic.getId() &&
                 Objects.equals(getName(), epic.getName()) &&
@@ -55,10 +56,6 @@ public class Epic extends Task {
 
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 20;
-        result = prime * result + ((getId() == 0) ? 0 : getId());
-        result = prime * result + ((getId() == 0) ? 0 : getName().hashCode());
-        return result;
+        return Objects.hash(super.hashCode(),subTasks);
     }
 }

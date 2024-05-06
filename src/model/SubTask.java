@@ -34,6 +34,7 @@ public class SubTask extends Task {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
         SubTask subTask = (SubTask) o;
         return getId() == subTask.getId() &&
                 Objects.equals(getName(), subTask.getName()) &&
@@ -43,11 +44,7 @@ public class SubTask extends Task {
 
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 10;
-        result = prime * result + ((getId() == 0) ? 0 : getId());
-        result = prime * result + ((getId() == 0) ? 0 : getName().hashCode());
-        return result;
+        return Objects.hash(super.hashCode(),epic);
     }
 
 

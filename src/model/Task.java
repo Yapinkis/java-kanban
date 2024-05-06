@@ -8,8 +8,10 @@ public class Task {
     private String name;
     private String description;
     private EnumStatus status;
-    protected TasksStatus tStatus;//Посавил protected т.к. такой вариант мне показался более удобным, чем
-    //описывать дополнительные геттеры и сеттеры, или я не прав и нужно ыбло всё-таки делать private
+    protected TasksStatus tStatus;
+    //В ТЗ было указано : Создайте enum с типами задач.
+    //+ так же проще отслеживать именно тип, для записи в файл TASK/EPIC/SUBTASK.
+    //EnumStatus же даёт информацию исключительно о статусе NEW/IN_PROGRESS/DONE.
 
     public Task() {
         this.status = EnumStatus.NEW;
@@ -98,6 +100,8 @@ public class Task {
         int result = 1;
         result = prime * result + ((id == 0) ? 0 : id);
         result = prime * result + ((id == 0) ? 0 : name.hashCode());
+        result = prime * result + (description != null ? description.hashCode() : 0);
+        //Прочитал про контракты. Здесь действительно была ошибка, отсутсвовало поле сравнения по description
         return result;
     }
 

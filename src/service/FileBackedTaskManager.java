@@ -1,5 +1,6 @@
 package service;
 
+import exceptions.ManagerSaveException;
 import model.*;
 
 import java.io.*;
@@ -7,7 +8,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
@@ -18,37 +18,24 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
     @Override
     public Task createTask(Task task)  {
-        try {
             super.createTask(task);
             save();
-        } catch (ManagerSaveException e) {
-            System.err.println("Возникла ошибка в методе при записи задачи: " + e.getMessage());
-        }
-        return task;
-    } //Я не могу обработать исключение так,как это показано в ТЗ(без блока try\catch).Возникает ошибка:
-    //Unhandled exception: model.ManagerSaveException. А по условиям, нам нужно создать пользовательское исключение
-    //Возможно проще наследовать исключение сразу для всего класса?
+            return task;
+    }
+
 
     @Override
     public Task createEpic(Epic epic) {
-        try {
             super.createEpic(epic);
             save();
-        } catch (ManagerSaveException e) {
-            System.err.println("Возникла ошибка в методе при записи эпика: " + e.getMessage());
-        }
-        return null;
+            return epic;
     }
 
     @Override
     public SubTask createSubTask(SubTask subTask) {
-        try {
             super.createSubTask(subTask);
             save();
-        } catch (ManagerSaveException e) {
-            System.err.println("Возникла ошибка в методе при записи подзадачи: " + e.getMessage());
-        }
-        return subTask;
+            return subTask;
     }
 
     public void save() throws ManagerSaveException {
@@ -58,8 +45,10 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         try (FileWriter fileWriter = new FileWriter(path.toFile(), StandardCharsets.UTF_8, true)) {
             if (Files.size(path) == 0) {
                 fileWriter.write("id,type,name,status,description,epic\n");
-            } //Нормально и проводить проверку на вес файла? Просто теоретически, если он пустой,
-            //а заголовок это всегда первая строка, то именно его сперва мы и должны записать
+            }
+            //Возможно в случаях, когда предусмотрена команда очистки истории?
+            //Ну либо, когда предусмотрен какой-то общий доступ к файлу и его удаление может привести к ошибке?
+            //Наверное это очень ситуативная штука...
             String stringFromTask = makeStringFromTask(task);
             List<String> strings = Files.readAllLines(path);
             if (!strings.contains(stringFromTask)) {
@@ -67,7 +56,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                 makeBrowsingHistory(task);
             }
         } catch (IOException e) {
-            throw new ManagerSaveException("При работе с файлом произошла ошибка: ", e);
+            throw new ManagerSaveException("При работе с файлом произошла ошибка: " + e.getMessage(), e);
         }
     }
     //Метод для перобразования задачи в строку
@@ -85,69 +74,6 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         }
         return makeString.toString();
     }
-//    public void makeBrowsingHistory(Task task) throws ManagerSaveException {
-//        Path path = Paths.get("resources/BrowsingHistory.csv");
-//        try (FileWriter fileWriter = new FileWriter(path.toFile(), StandardCharsets.UTF_8,true)) {
-//            if (task.getStatus().equals(EnumStatus.NEW)) {
-//                switch (task.getTaskStatus()) {
-//                    case TASK:
-//                    case SUBTASK:
-//                        fileWriter.write(task.getTaskStatus() + " " + task.getName() + " осталась в состоянии: " +
-//                                task.getStatus() + " и не была просмотрена." + "\n");
-//                        break;
-//                    case EPIC:
-//                        Epic epic = getIdEpic(task.getId());
-//                        List<SubTask> subs = epic.getSubTasks();
-//                        fileWriter.write(task.getTaskStatus() + " " + task.getName() + " имеет статус " +
-//                                task.getStatus() + " и не был просомтрен." + "\n");
-//                        for (Task subTask : subs) {
-//                            fileWriter.write("     " + subTask.getTaskStatus() + " " + subTask.getName()
-//                                    + subTask.getStatus() + " не была просомтрена." + "\n");
-//                        }
-//                        break;
-//                }
-//            } else if (task.getStatus().equals(EnumStatus.IN_PROGRESS)) {
-//                switch (task.getTaskStatus()) {
-//                    case TASK:
-//                    case SUBTASK:
-//                        fileWriter.write(task.getTaskStatus() + " " + task.getName() + " обновила статус " +
-//                                task.getStatus() + " и была принята в работу." + "\n");
-//                        break;
-//                    case EPIC:
-//                        Epic epic = getIdEpic(task.getId());
-//                        List<SubTask> subs = epic.getSubTasks();
-//                        fileWriter.write(task.getTaskStatus() + " " + task.getName() + " имеет статус " +
-//                                task.getStatus() + " была просомтрена." + "\n");
-//                        for (Task subTask : subs) {
-//                            fileWriter.write("     " + subTask.getTaskStatus() + " " + subTask.getName()
-//                                    + subTask.getStatus() + " была принята в работу." + "\n");
-//                        }
-//                        break;
-//                }
-//            } else {
-//                switch (task.getTaskStatus()) {
-//                    case TASK:
-//                    case SUBTASK:
-//                        fileWriter.write(task.getTaskStatus() + " " + task.getName() + " " +
-//                                task.getStatus() + " выполнена." + "\n");
-//                        break;
-//                    case EPIC:
-//                        Epic epic = getIdEpic(task.getId());
-//                        List<SubTask> subs = epic.getSubTasks();
-//                        fileWriter.write(task.getTaskStatus() + " " + task.getName() + " " +
-//                                task.getStatus() + " завершён." + "\n");
-//                        for (Task subTask : subs) {
-//                            fileWriter.write("     " + subTask.getTaskStatus() + " " + subTask.getName()
-//                                    + subTask.getStatus() + " выполнена." + "\n");
-//                        }
-//                        break;
-//                }
-//            }
-//        } catch (IOException e) {
-//            throw new ManagerSaveException("При записи истории произошла ошибка:", e);
-//        }
-//    } //Наверное, это была не самая хорошая реализация метода?
-    //Я так понимаю, такие огромные куски кода лучше разбивать на подметоды?
 
     public void makeBrowsingHistory(Task task) throws ManagerSaveException {
         Path path = Paths.get("resources/BrowsingHistory.csv");
@@ -165,12 +91,12 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                 fileWriter.write(historyModule + "\n");
             }
         } catch (IOException e) {
-            throw new ManagerSaveException("Ошибка при записи истории:", e);
+            throw new ManagerSaveException("Ошибка при записи истории:");
         }
     }
 
     private String generateBrowsingHistoryEntry(Task task) {
-        StringBuilder wordToTask = new StringBuilder();//Нормально же, что я везде использую StringBuilder?
+        StringBuilder wordToTask = new StringBuilder();
         wordToTask.append(task.getTaskStatus()).append(" ").append(task.getName()).append(" ");
         if (task.getStatus() == EnumStatus.NEW) {
             wordToTask.append("осталась в состоянии: ").append(task.getStatus()).append(" и не была просмотрена.");
@@ -185,27 +111,19 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     public static FileBackedTaskManager loadFromFile(File file) throws ManagerSaveException {
         FileBackedTaskManager fileBackedTaskManager = new FileBackedTaskManager(Managers.getHistoryManager());
         Path path = Paths.get("resources/TasksHistory.csv");
-        ArrayList<String> tasks = new ArrayList<>();
-        try (BufferedReader bufferedReader = new BufferedReader(new FileReader(path.toFile(), StandardCharsets.UTF_8))) {
-            //Я же в теории могу обойтись без BufferedReader и использовать только Files.readAllLines для чтения
-            //из файла? Или здесь есть какие-то ограничения по памяти?
-            String line;
-            while ((line = bufferedReader.readLine()) != null) {
-                tasks.add(line);
-            }
+        try (FileWriter fileWriter = new FileWriter(path.toFile(), StandardCharsets.UTF_8, true)) {
+            List<String> tasks = Files.readAllLines(path);
             for (int i = 1; i < tasks.size(); i++) {
                 String task = tasks.get(i);
                 String[] words = task.split(",");
                 TasksStatus status = TasksStatus.valueOf(words[1]);
                 if (status.equals(TasksStatus.TASK)) {
                     Task newTask = new Task((Integer.parseInt(words[0])), words[2], words[4]);
-                    //newTask.setTaskStatus(TasksStatus.TASK);
                     fileBackedTaskManager.getTasks().put(newTask.getId(), newTask);
 
                 } else if (status.equals(TasksStatus.EPIC)) {
                     Epic newEpic = new Epic(words[2], words[4]);
                     newEpic.setId(Integer.parseInt(words[0]));
-                    //newEpic.setTaskStatus(TasksStatus.EPIC);
                     fileBackedTaskManager.getEpics().put(newEpic.getId(), newEpic);
                 } else {
                     int point = 0;
@@ -224,7 +142,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             }
 
         } catch (IOException e) {
-            throw new ManagerSaveException("При работе с файлом произошла ошибка: ", e);
+            throw new ManagerSaveException("При работе с файлом произошла ошибка: " + e.getMessage(), e);
         }
         return fileBackedTaskManager;
     }

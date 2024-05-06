@@ -4,7 +4,7 @@ import model.Task;
 import java.util.*;
 
 public class InMemoryHistoryManager implements HistoryManager {
-    private Map<Integer, Node> linkedMap;
+    private Map<Integer, Node> nodeMap;
     private Node head;
     private Node tail;
 
@@ -50,7 +50,7 @@ public class InMemoryHistoryManager implements HistoryManager {
     }
 
     public Map<Integer,Node> getMap() {
-        return new HashMap<>(linkedMap);
+        return new HashMap<>(nodeMap);
     }
 
     public void linkLast(Task task) {
@@ -63,11 +63,11 @@ public class InMemoryHistoryManager implements HistoryManager {
             createNode.prevNode(tail);
             tail = createNode;
         }
-        linkedMap.put(task.getId(), createNode);
+        nodeMap.put(task.getId(), createNode);
     }
 
     public InMemoryHistoryManager() {
-        this.linkedMap = new HashMap<>();
+        this.nodeMap = new HashMap<>();
         this.head = null;
         this.tail = null;
     }
@@ -86,26 +86,15 @@ public class InMemoryHistoryManager implements HistoryManager {
             node.getPrev().nextNode(node.getNext());
             node.getNext().prevNode(node.getPrev());
         }
-        linkedMap.remove(node.getTask().getId());
+        nodeMap.remove(node.getTask().getId());
     }
 
     private void addNode(Task task) {
-        if (linkedMap.containsKey(task.getId())) {
-            remove(linkedMap.get(task.getId()));
+        if (nodeMap.containsKey(task.getId())) {
+            remove(nodeMap.get(task.getId()));
         }
         linkLast(task);
     }
-
-    private ArrayList<Task> getHistoryNode() {
-        ArrayList<Task> history = new ArrayList<>();
-        Node current = head;
-        while (current != null) {
-            history.add(current.getTask());
-            current = current.getNext();
-        }
-        return history;
-    }
-
 
     @Override
     public void add(Task task) {
@@ -119,8 +108,15 @@ public class InMemoryHistoryManager implements HistoryManager {
 
     @Override
     public List<Task> getHistory() {
-        return getHistoryNode();
+        List<Task> history = new ArrayList<>();
+        Node current = head;
+        while (current != null) {
+            history.add(current.getTask());
+            current = current.getNext();
+        }
+        return history;
     }
-
-
+    //Я ещё раз перечитал замечания к предыдущей работе: определи какие методы являются внутренними для нашего класса
+    //и закрой доступ. И наверное getHistoryNode действительно лишний, т.к. мы здесь получаем копию истории
+    //и фактически напрямую ей не управляем. Ну т.е. нет смысла из публичного метода вызывать приватный.
 }
