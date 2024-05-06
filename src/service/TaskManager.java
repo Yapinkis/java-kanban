@@ -7,7 +7,6 @@ import model.Task;
 import java.util.List;
 
 public interface TaskManager {
-    List<Task> getHistory();
 
     //Набор метододов для задач Tasks
     List<Task> getAllTasks();
@@ -42,7 +41,7 @@ public interface TaskManager {
 
     Epic getIdEpic(int id);
 
-    Epic createEpic(Epic epic);
+    Task createEpic(Epic epic);
 
     void updateEpic(Epic epic);
 
@@ -55,4 +54,5 @@ public interface TaskManager {
     void calculateEpic(Epic epic);
 
     List<SubTask> getAllSubTasksByEpic(Epic epic);
+
 }

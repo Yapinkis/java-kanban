@@ -1,14 +1,13 @@
 package service;
 
-import model.Epic;
 import model.Task;
-
+import service.InMemoryHistoryManager.Node;
 import java.util.List;
-import java.util.Map;
 
 public interface HistoryManager {
     void add(Task task);
 
-    List<Task> getHistory();
+    void remove(Node node);
 
+    List<Task> getHistory();
 }
