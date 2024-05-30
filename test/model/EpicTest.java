@@ -14,30 +14,33 @@ import static org.junit.jupiter.api.Assertions.*;
 @DisplayName("Эпик")
 class EpicTest {
     TaskManager taskManager;
+
     @BeforeEach
-    void init(){
+    void init() {
         taskManager = Managers.getDefault();
     }
+
     @Test
     @DisplayName("Разные Эпики при создании одинкаовых экземпляров, но разных Id")
-    void mustEpicBeEqualsEpicWithIdAndOtherParams(){
+    void mustEpicBeEqualsEpicWithIdAndOtherParams() {
         Epic epic_1 = new Epic("Work in home", "All day");
         Epic epic_2 = new Epic("Work in home", "All day");
         taskManager.createEpic(epic_1);
         taskManager.createEpic(epic_2);
 
-        assertNotEquals(epic_1,epic_2);
+        assertNotEquals(epic_1, epic_2);
     }
+
     @Test
     @DisplayName("Разные Эпики при создании одинкаовых экземпляров и Id, но разных Сабтасках")
-    void shouldBeDifferentInstancesOfEpicsIfSubTasksDoNotMatch(){
-        Epic epic1 = new Epic("Test epic","test");
-        SubTask subTask1 = new SubTask("Test subTask1","test_subTask1");
-        SubTask subTask2 = new SubTask("Test subTask2","test_subTask2");
+    void shouldBeDifferentInstancesOfEpicsIfSubTasksDoNotMatch() {
+        Epic epic1 = new Epic("Test epic", "test");
+        SubTask subTask1 = new SubTask("Test subTask1", "test_subTask1");
+        SubTask subTask2 = new SubTask("Test subTask2", "test_subTask2");
 
-        Epic epic2 = new Epic("Test epic","test");
-        SubTask subTask3 = new SubTask("Test subTask3","test_subTask3");
-        SubTask subTask4 = new SubTask("Test subTask4","test_subTask4");
+        Epic epic2 = new Epic("Test epic", "test");
+        SubTask subTask3 = new SubTask("Test subTask3", "test_subTask3");
+        SubTask subTask4 = new SubTask("Test subTask4", "test_subTask4");
 
         taskManager.createEpic(epic1);
         taskManager.createSubTask(subTask1);
@@ -46,19 +49,18 @@ class EpicTest {
         taskManager.createSubTask(subTask3);
         taskManager.createSubTask(subTask4);
         epic2.setId(epic1.getId());
-        //Устанавливаем одинаковое Id для Эпиков, что бы они были равны вне зависимости от генерации значения
 
-        assertNotEquals(epic1,epic2);
+        assertNotEquals(epic1, epic2);
     }
 
     @Test
     @DisplayName("Наличие обновления Сабтасков в Эпике через метод")
-    void shouldAddSubTasksForEpicWithSetSubTaskVoid(){
-        Epic epic = new Epic("Test epic","test");
-        SubTask subTask1 = new SubTask("Test subTask1","test_subTask1");
-        SubTask subTask2 = new SubTask("Test subTask2","test_subTask2");
-        SubTask subTask3 = new SubTask("Test subTask3","test_subTask3");
-        SubTask subTask4 = new SubTask("Test subTask4","test_subTask4");
+    void shouldAddSubTasksForEpicWithSetSubTaskVoid() {
+        Epic epic = new Epic("Test epic", "test");
+        SubTask subTask1 = new SubTask("Test subTask1", "test_subTask1");
+        SubTask subTask2 = new SubTask("Test subTask2", "test_subTask2");
+        SubTask subTask3 = new SubTask("Test subTask3", "test_subTask3");
+        SubTask subTask4 = new SubTask("Test subTask4", "test_subTask4");
 
         taskManager.createEpic(epic);
         taskManager.createSubTask(subTask1);
@@ -75,16 +77,16 @@ class EpicTest {
         int listSize = listForTest.size();
         int epicSubSize = epic.getSubTasks().size();
 
-        assertEquals(epicSubSize,listSize);
+        assertEquals(epicSubSize, listSize);
     }
 
     @Test
     @DisplayName("Одинаковые Эпики при создании копии объекта")
-    void shouldBeEqualsObjectsIfEpicMakeCopyEpic(){
-        Epic epic = new Epic("test","epic test");
-        SubTask subTask1 = new SubTask("Test subTask1","test_subTask1");
-        SubTask subTask2 = new SubTask("Test subTask2","test_subTask2");
-        Epic epicCopy = new Epic();
+    void shouldBeEqualsObjectsIfEpicMakeCopyEpic() {
+        Epic epic = new Epic("test", "epic test");
+        SubTask subTask1 = new SubTask("Test subTask1", "test_subTask1");
+        SubTask subTask2 = new SubTask("Test subTask2", "test_subTask2");
+        Epic epicCopy = new Epic("test_2", "epic test_2");
 
         taskManager.createEpic(epic);
         taskManager.createSubTask(subTask1);
@@ -100,11 +102,8 @@ class EpicTest {
         epicCopy.setId(epic.getId());
         epicCopy.setSubTasks(listForTest);
 
-        assertEquals(epic,epicCopy);
+        assertEquals(epic, epicCopy);
 
     }
 
-
-
-
-    }
+}
