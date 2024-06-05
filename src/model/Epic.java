@@ -7,7 +7,6 @@ import java.util.Objects;
 
 public class Epic extends Task {
     private List<Integer> idsOfSubTasks;
-    //Переписал, теперь у меня экземпляр Эпика хранит только id входящих в него сабтасков
     private LocalDateTime endTime;
 
     public Epic(String name, String description) {
@@ -20,15 +19,8 @@ public class Epic extends Task {
         return idsOfSubTasks;
     }
 
-    public void setSubTasks(List<SubTask> subTasks) {
-        ArrayList<Integer> someArr = new ArrayList<>();
-        int[] arr = subTasks.stream().mapToInt(Task::getId).toArray();
-        for (int num : arr) {
-            someArr.add(num);
-        }
-        this.idsOfSubTasks = someArr;
-        //Я честно так и не понял, как преобразовать int[] в List<Integer> без forEach
-        //И обязательно всё писать в декларативном стиле?
+    public void setSubTasks(List<Integer> subTasks) {
+        this.idsOfSubTasks = new ArrayList<>(subTasks);
     }
 
     public void addSubTasks(SubTask subTask) {

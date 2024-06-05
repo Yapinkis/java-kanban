@@ -68,9 +68,9 @@ class EpicTest {
         taskManager.createSubTask(subTask3);
         taskManager.createSubTask(subTask4);
 
-        List<SubTask> listForTest = new ArrayList<>();
-        listForTest.add(subTask2);
-        listForTest.add(subTask3);
+        List<Integer> listForTest = new ArrayList<>();
+        listForTest.add(subTask2.getId());
+        listForTest.add(subTask3.getId());
 
         epic.setSubTasks(listForTest);
 
@@ -93,9 +93,9 @@ class EpicTest {
         taskManager.createSubTask(subTask2);
         taskManager.createEpic(epicCopy);
 
-        List<SubTask> listForTest = new ArrayList<>();
-        listForTest.add(subTask1);
-        listForTest.add(subTask2);
+        List<Integer> listForTest = new ArrayList<>();
+        listForTest.add(subTask1.getId());
+        listForTest.add(subTask2.getId());
 
         epicCopy.setDescription(epic.getDescription());
         epicCopy.setName(epic.getName());

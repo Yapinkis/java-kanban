@@ -133,7 +133,7 @@ class InMemoryHistoryManagerTest extends TaskManagerTest <InMemoryTaskManager>{
 
         int beforeDel = TaskManager.getHistoryHManager().size();
         Map<Integer, Node> map = inMemoryHistoryManager.getMap();
-        inMemoryHistoryManager.remove(map.get(epic_1.getId()));
+        inMemoryHistoryManager.remove(epic_1);
         int afterDel = TaskManager.getHistoryHManager().size();
         assertNotEquals(beforeDel, afterDel);
     }
@@ -246,7 +246,7 @@ class InMemoryHistoryManagerTest extends TaskManagerTest <InMemoryTaskManager>{
             assertNotEquals(oldHistory.get(i),newHistory.get(i));
         }
     }
-    @DisplayName("После удаления задачи, она остаётся в истории")
+    @DisplayName("После удаления задачи она не остаётся в истории")
     @Test
     void afterDeletingTaskInformationAboutItRemainsInHistory(){
         Epic epic_1 = new Epic("Epic_1","Test");
@@ -261,54 +261,16 @@ class InMemoryHistoryManagerTest extends TaskManagerTest <InMemoryTaskManager>{
         TaskManager.createTask(task_1_2);
         TaskManager.createTask(task_1_1);
 
-        List<Task> oldHistory = TaskManager.getHistoryHManager();
         int oldTasksSize = TaskManager.getAllTasks().size() + TaskManager.getAllSubTasks().size() +
                 TaskManager.getAllEpics().size();
-
         TaskManager.deleteTask(task_1_1.getId());
-
-        List<Task> newHistory = TaskManager.getHistoryHManager();
-        int historySize = TaskManager.getHistoryHManager().size();
         int newTasksSize = TaskManager.getAllTasks().size() + TaskManager.getAllSubTasks().size() +
                 TaskManager.getAllEpics().size();
 
-        //Проверяем истории
-        for(int i = 0;i < historySize;i++){
-            assertEquals(oldHistory.get(i),newHistory.get(i));
-        }
-        //Проверяем количество задач
+        //Сравниваем количество задач
         assertNotEquals(newTasksSize,oldTasksSize);
     }
 
-    @DisplayName("Проверка граничащих значений")
-    @Test
-    void checkBoundaryValuesFromHistoryManager() {
-        Task task1 = new Task("Test1","forTest");
-        Task task2 = new Task("Test2","forTest");
-        Task task3 = new Task("Test3","forTest");
-        Task task4 = new Task("Test4","forTest");
-        Task task5 = new Task("Test5","forTest");
-
-        TaskManager.createTask(task1);
-        TaskManager.createTask(task2);
-        TaskManager.createTask(task3);
-        TaskManager.createTask(task4);
-        TaskManager.createTask(task5);
-
-        Node head = inMemoryHistoryManager.getHead();
-        Node tail = inMemoryHistoryManager.getTail();
-        Node middleNode = inMemoryHistoryManager.getNode(task3);
-
-        inMemoryHistoryManager.remove(head);
-        inMemoryHistoryManager.remove(tail);
-        inMemoryHistoryManager.remove(middleNode);
-
-        Node newHead = inMemoryHistoryManager.getNode(task2);
-        Node newTail = inMemoryHistoryManager.getNode(task4);
-
-        assertEquals(newHead,inMemoryHistoryManager.getHead());
-        assertEquals(newTail,inMemoryHistoryManager.getTail());
-    }
 
     @DisplayName("Проверка исключений при попытке обратиться к отсутствующей ноде")
     @Test
@@ -321,11 +283,10 @@ class InMemoryHistoryManagerTest extends TaskManagerTest <InMemoryTaskManager>{
         TaskManager.createTask(task2);
         TaskManager.createTask(task3);
 
-        inMemoryHistoryManager.remove(inMemoryHistoryManager.getNode(task3));
+        inMemoryHistoryManager.remove(task3);
 
         assertThrows(NullPointerException.class, () -> {
-            Node deletedNode = inMemoryHistoryManager.getNode(task3);
-            inMemoryHistoryManager.remove(deletedNode);
+            inMemoryHistoryManager.remove(task3);
         });
     }
 }

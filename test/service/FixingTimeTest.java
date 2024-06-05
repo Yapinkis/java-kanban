@@ -1,5 +1,6 @@
 package service;
 
+import exceptions.ManagerSaveException;
 import model.Epic;
 import model.SubTask;
 import model.Task;
@@ -12,8 +13,11 @@ import java.time.DateTimeException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -77,6 +81,7 @@ public class FixingTimeTest extends TaskManagerTest <InMemoryTaskManager>{
         }
     }
 
+
     @DisplayName("Длительность работы эпика равна сумме продолжительности всех его подзадач")
     @Test
     void epicDurationEqualsAllEpicSubTasksDuration(){
@@ -128,17 +133,12 @@ public class FixingTimeTest extends TaskManagerTest <InMemoryTaskManager>{
         Task task5 = new Task("Test2","testing",40,startTime.plusHours(20));
         Task task6 = new Task("Test2","testing",20,startTime.plusHours(20));
 
-        TaskManager.createTask(task1);
-        TaskManager.createTask(task2);
-        TaskManager.createTask(task3);
-        TaskManager.createTask(task4);
-        TaskManager.createTask(task5);
-        TaskManager.createTask(task6);
-
-        int tasksSize = TaskManager.getAllTasks().size();
-        int treeSize = TaskManager.getPrioritizedTasks().size();
-
-        Assertions.assertNotEquals(tasksSize,treeSize);
+        assertThrows(ManagerSaveException.class, () -> {TaskManager.createTask(task1);
+            TaskManager.createTask(task2);
+            TaskManager.createTask(task3);
+            TaskManager.createTask(task4);
+            TaskManager.createTask(task5);
+            TaskManager.createTask(task6);}, "Интервалы задач не совпадают");
     }
 
     @DisplayName("Проверка исключений при попытке задать некорректное значение Duration")

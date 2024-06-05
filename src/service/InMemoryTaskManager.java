@@ -1,5 +1,6 @@
 package service;
 
+import exceptions.ManagerSaveException;
 import model.*;
 
 import java.time.Duration;
@@ -38,10 +39,6 @@ public class InMemoryTaskManager implements TaskManager {
         return subTasks;
     }
 
-    public List<Task> getHistoryHManager() {
-        return historyManager.getHistory();
-    }
-
     //Набор метододов для задач Tasks
     @Override
     public List<Task> getAllTasks() {
@@ -50,6 +47,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void clearAllTasks() {
+        getAllTasks().forEach(historyManager::remove);
         tasks.clear();
         System.out.println("Список задач очищен...");
     }
@@ -82,12 +80,7 @@ public class InMemoryTaskManager implements TaskManager {
             throw new IllegalArgumentException("Не соотвествуют формату - Имя, описание");
         }
         tasksTreeSet.remove(task);
-        tasks.computeIfPresent(task.getId(), (id, editTask) -> {
-            editTask.setName(task.getName());
-            editTask.setDescription(editTask.getDescription());
-            editTask.setTasksStatus(editTask.getTasksStatus());
-            return editTask;
-        });
+        update(task);
         if (!task.getStartTime().equals(Task.defaultTime) && !checkWorkTime(task)) {
             tasksTreeSet.add(task);
         }
@@ -95,6 +88,9 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void deleteTask(int id) {
+        historyManager.remove(tasks.get(id));
+        //Кажется я немного запутался...У нас по условию ТЗ6 нужно было удалять из истории при удалении задачи:
+        /* Добавьте вызов метода при удалении задач, чтобы они удалялись также из истории просмотров.*/
         tasks.remove(id);
     }
 
@@ -106,6 +102,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void clearAllSubTasks() {
+        getAllSubTasks().forEach(historyManager::remove);
         subTasks.clear();
         epics.values().forEach(epic -> epic.setTasksStatus(TasksStatus.NEW));
         epics.values().forEach(epic -> epic.getSubTasks().clear());
@@ -127,7 +124,7 @@ public class InMemoryTaskManager implements TaskManager {
         subTask.setId((generateId()));
         subTasks.put(subTask.getId(), subTask);
         Epic epic = epics.get(findEpic());
-        subTask.setEpic(epic);
+        subTask.setEpic(epic.getId());
         epic.addSubTasks(subTask);
         calculateEpicStatus(epic);
         calculateEpicTime(epic);
@@ -144,13 +141,8 @@ public class InMemoryTaskManager implements TaskManager {
                 throw new IllegalArgumentException("Не соотвествуют формату - Имя, описание");
             }
             tasksTreeSet.remove(subTask);
-            subTasks.computeIfPresent(subTask.getId(), (id,editSubTask) -> {
-                editSubTask.setName(editSubTask.getName());
-                editSubTask.setDescription(editSubTask.getDescription());
-                editSubTask.setTasksStatus(editSubTask.getTasksStatus());
-                return editSubTask;
-            });
-            Epic epic = subTask.getEpic();
+            update(subTask);
+            Epic epic = epics.get(subTask.getEpic());
             calculateEpicStatus(epic);
             calculateEpicTime(epic);
             if (!subTask.getStartTime().equals(Task.defaultTime) && !checkWorkTime(subTask)) {
@@ -161,9 +153,10 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void deleteSubTask(int id) {
         SubTask subTask = subTasks.get(id);
+        historyManager.remove(subTask);
         subTasks.remove(id);
-        Epic epic = subTask.getEpic();
-        epic.getSubTasks().remove(subTask.getId());
+        Epic epic = epics.get(subTask.getEpic());
+        epic.getSubTasks().remove(subTask.getEpic());
         calculateEpicStatus(epic);
         calculateEpicTime(epic);
     }
@@ -176,6 +169,8 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void clearAllEpics() {
+        getAllEpics().forEach(historyManager::remove);
+        getAllSubTasks().forEach(historyManager::remove);
         epics.clear();
         subTasks.clear();
     }
@@ -208,12 +203,7 @@ public class InMemoryTaskManager implements TaskManager {
             throw new IllegalArgumentException("Не соотвествуют формату - Имя, описание");
         }
         tasksTreeSet.remove(epic);
-        epics.computeIfPresent(epic.getId(),(id,editEpic) -> {
-           editEpic.setSubTasks(getSubTasks(editEpic));
-           editEpic.setName(editEpic.getName());
-           editEpic.setDescription(editEpic.getDescription());
-           return editEpic;
-        });
+        update(epic);
         calculateEpicStatus(epic);
         calculateEpicTime(epic);
         if (!epic.getStartTime().equals(Task.defaultTime) && !checkWorkTime(epic)) {
@@ -224,8 +214,10 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void deleteEpic(int id) {
         Epic epic = epics.get(id);
+        getSubTasks(epic).forEach(historyManager::remove);
         epic.getSubTasks().clear();
-        epic.getSubTasks().clear();
+        getSubTasks(epic).clear();
+        historyManager.remove(epic);
         epics.remove(id);
     }
 
@@ -239,47 +231,6 @@ public class InMemoryTaskManager implements TaskManager {
         return epics.values().stream().mapToInt(Task::getId).max().orElse(0);
     }
 
-    @Override
-    public void calculateEpicStatus(Epic epic) {
-        List<SubTask> epicListStatus = getSubTasks(epic);
-        if (epicListStatus.isEmpty()) {
-            epic.setTasksStatus(TasksStatus.NEW);
-        }
-        boolean matchNew = epicListStatus.stream().allMatch(subFound -> subFound.getTasksStatus() == TasksStatus.NEW);
-        boolean matchDone = epicListStatus.stream().allMatch(subFound -> subFound.getTasksStatus() == TasksStatus.DONE);
-        if (matchNew) {
-            epic.setTasksStatus(TasksStatus.NEW);
-        } else if (matchDone) {
-            epic.setTasksStatus(TasksStatus.DONE);
-        } else {
-            epic.setTasksStatus(TasksStatus.IN_PROGRESS);
-        }
-    }
-
-    @Override
-    public void calculateEpicTime(Epic epic) {
-        List<SubTask> epicListTime = getSubTasks(epic);
-        Optional<SubTask> leastTime = epicListTime.stream().filter(minTime -> !minTime.getStartTime()
-                .equals(Task.defaultTime))
-                .min(Comparator.comparing(Task::getStartTime));
-        if (leastTime.isPresent()) {
-            SubTask minTime = leastTime.get();
-            epic.setStartTime(minTime);
-        } else {
-            System.out.println("SubTask с значением StartTime отсутствует в списке");
-        }
-        Optional<SubTask> longestTime = epicListTime.stream().filter(maxTime -> !maxTime.getEndTime()
-                .equals(Task.defaultTime)).max(Comparator.comparing(Task::getEndTime));
-        if (longestTime.isPresent()) {
-            SubTask maxTime = longestTime.get();
-            epic.setEndTime(maxTime);
-        } else {
-            System.out.println("SubTask с значением EndTime отсутствует в списке");
-        }
-        epic.setDuration(epicListTime.stream().map(SubTask::getDuration).reduce(Duration.ZERO, (a,b) -> a.plus(b)).toMinutes());
-    }
-
-    //Набор вспомогательных методов
     @Override
     public boolean checkValidation(Task task) {
         if (task.getName() == null && task.getDescription() == null) {
@@ -298,6 +249,9 @@ public class InMemoryTaskManager implements TaskManager {
     public Set<Task> getPrioritizedTasks() {
         return new TreeSet<>(tasksTreeSet);
     }
+    //а разве вариант с return tasksTreeSet не даёт открытый доступ к tasksTreeSet и это то, что я постоянно правил
+    //У меня раньше было много замечаний по этому поводу, что я как раз возвращал оригинал. Или это ситуативная штука?
+    //Если да,то как определить, когда давать прямой доступ, а когда передавать копию?
 
     @Override
     public boolean checkWorkTime(Task task) {
@@ -315,8 +269,20 @@ public class InMemoryTaskManager implements TaskManager {
         return result;
     }
 
+    @Override
+    public List<Task> getHistoryHManager() {
+        return historyManager.getHistory();
+    }
+
+    //Набор вспомогательных методов
+
     public boolean resultCalc(LocalDateTime x1, LocalDateTime x2) {
-        return getPrioritizedTasks().stream().anyMatch(x -> x.getStartTime().isBefore(x2) && x.getEndTime().isAfter(x1));
+        boolean result;
+        result = getPrioritizedTasks().stream().anyMatch(x -> x.getStartTime().isBefore(x2) && x.getEndTime().isAfter(x1));
+        if (result) {
+            throw new ManagerSaveException("Даты добавления задач совпадают");
+        }
+        return result;
     }
 
     public List<SubTask> getSubTasks(Epic epic) {
@@ -328,4 +294,74 @@ public class InMemoryTaskManager implements TaskManager {
         }
         return arr;
     }
+
+    protected void calculateEpicStatus(Epic epic) {
+        List<SubTask> epicListStatus = getSubTasks(epic);
+        if (epicListStatus.isEmpty()) {
+            epic.setTasksStatus(TasksStatus.NEW);
+        }
+        boolean matchNew = epicListStatus.stream().allMatch(subFound -> subFound.getTasksStatus() == TasksStatus.NEW);
+        boolean matchDone = epicListStatus.stream().allMatch(subFound -> subFound.getTasksStatus() == TasksStatus.DONE);
+        if (matchNew) {
+            epic.setTasksStatus(TasksStatus.NEW);
+        } else if (matchDone) {
+            epic.setTasksStatus(TasksStatus.DONE);
+        } else {
+            epic.setTasksStatus(TasksStatus.IN_PROGRESS);
+        }
+    }
+
+    private void calculateEpicTime(Epic epic) {
+        List<SubTask> epicListTime = getSubTasks(epic);
+        Optional<SubTask> leastTime = epicListTime.stream().filter(minTime -> !minTime.getStartTime()
+                        .equals(Task.defaultTime))
+                .min(Comparator.comparing(Task::getStartTime));
+        if (leastTime.isPresent()) {
+            SubTask minTime = leastTime.get();
+            epic.setStartTime(minTime);
+        } else {
+            System.out.println("SubTask с значением StartTime отсутствует в списке");
+        }
+        Optional<SubTask> longestTime = epicListTime.stream().filter(maxTime -> !maxTime.getEndTime()
+                .equals(Task.defaultTime)).max(Comparator.comparing(Task::getEndTime));
+        if (longestTime.isPresent()) {
+            SubTask maxTime = longestTime.get();
+            epic.setEndTime(maxTime);
+        } else {
+            System.out.println("SubTask с значением EndTime отсутствует в списке");
+        }
+        epic.setDuration(epicListTime.stream().map(SubTask::getDuration).reduce(Duration.ZERO, (a,b) -> a.plus(b)).toMinutes());
+    }
+
+    private void update(Task task) {
+        switch (task.getTasksType()) {
+            case TASK:
+                tasks.computeIfPresent(task.getId(), (id, editTask) -> {
+                    editTask.setName(task.getName());
+                    editTask.setDescription(task.getDescription());
+                    editTask.setTasksStatus(task.getTasksStatus());
+                    return editTask;
+                });
+                break;
+            case SUBTASK:
+                subTasks.computeIfPresent(task.getId(), (id,editSubTask) -> {
+                    editSubTask.setName(task.getName());
+                    editSubTask.setDescription(task.getDescription());
+                    editSubTask.setTasksStatus(task.getTasksStatus());
+                    ((SubTask) editSubTask).setEpic(((SubTask) task).getEpic());
+                    return editSubTask;
+                });
+                break;
+            case EPIC:
+                epics.computeIfPresent(task.getId(),(id,editEpic) -> {
+                    ((Epic) editEpic).setSubTasks(((Epic) task).getSubTasks());
+                    editEpic.setName(task.getName());
+                    editEpic.setDescription(task.getDescription());
+                    return editEpic;
+                });
+                break;
+                //Или этот метод тоже нужно как-то разбить на подметоды?
+        }
+    }
+
 }

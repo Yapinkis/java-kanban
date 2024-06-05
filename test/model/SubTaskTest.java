@@ -35,6 +35,8 @@ class SubTaskTest {
         taskManager.createEpic(epic2);
         taskManager.createSubTask(subTask3);
         taskManager.createSubTask(subTask4);
+        subTask1.setName("New");
+        taskManager.updateSubTask(subTask1);
 
         subTask3.setId(subTask1.getId());
         subTask4.setId(subTask2.getId());

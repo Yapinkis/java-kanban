@@ -17,7 +17,7 @@ public interface TaskManager {
 
     Task createTask(Task task);
 
-    Set<Task> getPrioritizedTasks();//Или лучше явно указать TreeSet?
+    Set<Task> getPrioritizedTasks();
 
     boolean checkValidation(Task task);
 
@@ -55,10 +55,8 @@ public interface TaskManager {
 
     int findEpic();
 
-    void calculateEpicStatus(Epic epic);
-
-    void calculateEpicTime(Epic epic);
-
     List<SubTask> getAllSubTasksByEpic(Epic epic);
+
+    List<Task> getHistoryHManager();
 
 }

@@ -41,20 +41,22 @@ public class SubTask extends Task {
         this.duration = Duration.ofMinutes(0);
     }
 
-    private Epic epic;
+    private Integer epic;
 
-    public Epic getEpic() {
-       return epic;
+
+    public Integer getEpic() {
+        return epic;
     }
 
-    public void setEpic(Epic epic) {
+
+    public void setEpic(Integer epic) {
         this.epic = epic;
     }
 
     @Override
     public String toString() {
         return "SubTask {" + "|id=| " + getId() + " |name=| " + getName() + " |status=| " + getTasksStatus() + " |description=| " +
-                getDescription() + " |Epic_name| " + getEpic().getName() + "}";
+                getDescription() + " |Epic_Id| " + getEpic() + "}";
     }
 
     @Override
