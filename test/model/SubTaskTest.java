@@ -19,13 +19,13 @@ class SubTaskTest {
     }
 
     @Test
-    @DisplayName("Сабтаски не будут сопадать, если у них одинаковые поля, но разыне Эпики")
+    @DisplayName("Сабтаски не будут совпадать, если у них одинаковые поля, но разыне Эпики")
     void mustSubTaskBeNotEqualsSubTaskWithIdAndOtherParams(){
-        Epic epic1 = new Epic("Worker");
+        Epic epic1 = new Epic("Worker","forTest_1");
         SubTask subTask1 = new SubTask("Work in home", "All day");
         SubTask subTask2 = new SubTask("Work in home", "All day");
 
-        Epic epic2 = new Epic("Worker");
+        Epic epic2 = new Epic("Worker","forTest_2");
         SubTask subTask3 = new SubTask("Work in home", "All day");
         SubTask subTask4 = new SubTask("Work in home", "All day");
 
@@ -35,6 +35,8 @@ class SubTaskTest {
         taskManager.createEpic(epic2);
         taskManager.createSubTask(subTask3);
         taskManager.createSubTask(subTask4);
+        subTask1.setName("New");
+        taskManager.updateSubTask(subTask1);
 
         subTask3.setId(subTask1.getId());
         subTask4.setId(subTask2.getId());
@@ -45,10 +47,10 @@ class SubTaskTest {
     @Test
     @DisplayName("Сабтаски будут сопадать, если у них одинаковые поля и одинаковые экземпляры Эпика")
     void mustSubTaskBeEqualsSubTaskWithOneEpicObjectCopy(){
-        Epic epic1 = new Epic("Worker");
+        Epic epic1 = new Epic("Worker","forTest_1");
         SubTask subTask1 = new SubTask("Work in home", "All day");
 
-        Epic epic2 = new Epic();
+        Epic epic2 = new Epic("Worker","forTest_1");
         SubTask subTask2 = new SubTask("Work in home", "All day");
 
         taskManager.createEpic(epic1);
@@ -70,7 +72,18 @@ class SubTaskTest {
         assertEquals(subTask1.getId(), subTask2.getId(),
                 String.format("Идентификатор эпиков не совпадает, ошибка в параметре Id: %s. " +
                         "Фактическое значение: %s", subTask1.getId(), subTask2.getId()));
-        //Наверное можно было это всё как-то реализовать через метод equals, который я перопределил в SubTask, но я так
-        //и не понял, как лучше его реализовать. Потратил кучу времени, но всегда натыкался на ошибку StackOverflowError
     }
+
+    @DisplayName("Проверка исключений при попытке создать сабтаск без Эпика")
+    @Test
+    void errorTryCreateSubTaskWithoutEpic_NullPointerException() {
+        SubTask subTask1 = new SubTask("Test1","forTest");
+        SubTask subTask2 = new SubTask("Test2","forTest");
+
+        assertThrows(NullPointerException.class,() -> {
+            taskManager.createSubTask(subTask1);
+            taskManager.createSubTask(subTask2);});
+    }
+
+
 }

@@ -1,0 +1,22 @@
+id,type,name,status,description,epic,startTime,duration
+
+1,TASK,someTask_1,NEW,someTest1
+Дата начала задачи не была указана.
+Продолжительность задачи: 0 минут.
+
+2,EPIC,someEpic_1,NEW,someTest2,someEpic_2.
+Дата начала первой подазачи Эпика не была определена.
+Продолжительность Эпика: 0 минут.
+
+3,SUBTASK,someSubTask_1,NEW,someTest3
+Дата начала задачи не была указана.
+Продолжительность задачи: 0 минут.
+
+4,EPIC,someEpic_2,NEW,someTest4,someEpic_2.
+Дата начала первой подазачи Эпика не была определена.
+Продолжительность Эпика: 0 минут.
+
+5,SUBTASK,someSubTask_2,NEW,someTest5
+Дата начала задачи не была указана.
+Продолжительность задачи: 0 минут.
+

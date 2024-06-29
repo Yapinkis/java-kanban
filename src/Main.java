@@ -1,57 +1,95 @@
-import model.EnumStatus;
+
 import model.Epic;
 import model.SubTask;
 import model.Task;
-import service.InMemoryHistoryManager;
-import service.InMemoryTaskManager;
 import service.Managers;
 import service.TaskManager;
 
-import java.util.List;
+import java.util.HashMap;
+import java.util.Set;
+import java.util.TreeSet;
 
 public class Main {
 
     public static void main(String[] args) {
+        TaskManager manager = Managers.getDefault();
+//        manager.createTask(new Task("Task1","forTest"));
+//        manager.createTask(new Task("Task2","forTest"));
+//        manager.createTask(new Task("Task3","forTest"));
+//
+//        Task task1 = new Task("Task4","forTest1");
+//        Task task2 = new Task("Task5","forTest1");
+//        Task task3 = new Task("Task6","forTest1");
+//
+//        manager.createTask(task1);
+//        manager.createTask(task2);
+//        manager.createTask(task3);
+//        task1.setName("Neeeew");
+//        manager.updateTask(task1);
+//        manager.deleteTask(task3.getId());
+//        manager.clearAllTasks();
+//        manager.createEpic(new Epic("new","Subs"));
+//        manager.createSubTask(new SubTask("new111","Subs111"));
+//        manager.createSubTask(new SubTask("new111","Subs111"));
+//        manager.createSubTask(new SubTask("new111","Subs111"));
+//        manager.createSubTask(new SubTask("new111","Subs111"));
+//        manager.clearAllSubTasks();
+//        manager.createEpic(new Epic("new","Subs"));
+//        SubTask subTask = new SubTask("subTask","subTaskForTest1");
+//        manager.createSubTask(subTask);
+//        manager.deleteSubTask(subTask.getId());
+//        manager.createEpic(new Epic("Epic3","forrrrrr"));
+//        manager.createSubTask(new SubTask("new111","Subs111"));
+//        manager.createSubTask(new SubTask("new111","Subs111"));
+//        manager.createSubTask(new SubTask("new111","Subs111"));
+//        manager.createSubTask(new SubTask("new111","Subs111"));
+//        manager.clearAllEpics();
+//
+//        Epic epic = new Epic("Epic","one");
+//        manager.createEpic(epic);
+//        manager.createSubTask(new SubTask("1","Subs111"));
+//        manager.createSubTask(new SubTask("2","Subs111"));
+//        manager.createSubTask(new SubTask("3","Subs111"));
+//        manager.createSubTask(new SubTask("4","Subs111"));
+//
+//        manager.deleteEpic(epic.getId());
+//
+//        Set<Task> other = new TreeSet<>(manager.getPrioritizedTasks());
+//
+//        manager.clearAllEpics();
+//        manager.clearAllTasks();
+//
+//        Task task12 = new Task("Task4","forTest1");
+//        Task task22 = new Task("Task5","forTest1");
+//
+//        manager.createTask(task12);
+//        manager.createTask(task22);
 
-        TaskManager taskManager = new InMemoryTaskManager(new InMemoryHistoryManager());
+        Epic epic1 = new Epic("1","tesr1");
+        Task task1 = new Task("new","test1");
+        Task task2 = new Task("new","test1");
+        Task task3 = new Task("new","test1");
+        Epic epic2 = new Epic("2","tesr1");
+        SubTask subTask = new SubTask("Othe","hose");
 
-        Task task_1 = taskManager.createTask(new Task("Приготовить завтрак","Пожарить яичницу"));
-        Task task_2 = taskManager.createTask(new Task("Сходить в магазин", "Купить продуктов"));
+        manager.createTask(task1);
+        manager.createTask(task2);
+        manager.createTask(task3);
+        manager.createTask(epic1);
+        manager.createTask(epic2);
+        manager.createTask(subTask);
 
-        Epic epic_1 = taskManager.createEpic(new Epic("Уборка","Убраться в квартире"));
-        SubTask subTask1_1 = taskManager.createSubTask(new SubTask("Влажная уборка","Помыть пол"));
-        SubTask subTask1_2 = taskManager.createSubTask(new SubTask("Убрать мусор", "Собрать и вынести" +
-                "мусор из квартиры"));
+        manager.clearAllTasks();
+        manager.clearAllEpics();
+        manager.clearAllEpics();
 
-        Epic epic_2 = taskManager.createEpic(new Epic("Тренировка","Заняться спортом"));
-        SubTask subTask2 = taskManager.createSubTask(new SubTask("Кардио","Ходьба на беговой дорожке"));
-
-        System.out.println(task_1);
-        System.out.println(task_2);
-        System.out.println(epic_1);
-        System.out.println(taskManager.showEpicSubtasks(epic_1));
-        System.out.println(epic_2);
-        System.out.println(taskManager.showEpicSubtasks(epic_2));
-
-        task_1.setStatus(EnumStatus.IN_PROGRESS);
-        task_2.setStatus(EnumStatus.IN_PROGRESS);
-        taskManager.updateTask(task_1);
-        taskManager.updateTask(task_2);
-        subTask1_1.setStatus(EnumStatus.IN_PROGRESS);
-        subTask1_2.setStatus(EnumStatus.IN_PROGRESS);
-        taskManager.updateSubTask(subTask1_1);
-        taskManager.updateSubTask(subTask1_2);
-        subTask2.setStatus(EnumStatus.DONE);
-        taskManager.updateSubTask(subTask2);
-
-        taskManager.deleteTask(task_1.getId());
-        taskManager.deleteEpic(epic_1.getId());
-        taskManager.updateSubTask(subTask1_1);
-
+        manager.createTask(task1);
+        task1.setName("Newцццццййцй");
+        manager.updateTask(task1);
+        manager.createEpic(epic2);
+        subTask.setEpic(epic2.getId());
+        manager.updateSubTask(subTask);
         System.out.println();
-        System.out.println(taskManager.getAllTasks());
-        System.out.println(taskManager.getAllEpics());
-        System.out.println(taskManager.showEpicSubtasks(epic_2));
 
     }
 }

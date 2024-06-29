@@ -1,6 +1,6 @@
 package service;
 
-import model.EnumStatus;
+import model.TasksStatus;
 import model.Epic;
 import model.SubTask;
 import model.Task;
@@ -9,18 +9,21 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.*;
 @DisplayName("Работа: In Memory Task Manager Test")
-class InMemoryTaskManagerTest {
-    TaskManager taskManager;
+class InMemoryTaskManagerTest extends TaskManagerTest <InMemoryTaskManager>{
+    InMemoryHistoryManager inMemoryHistoryManager;
 
+    @Override
+    protected InMemoryTaskManager createTaskManager() {
+        inMemoryHistoryManager = new InMemoryHistoryManager();
+        return new InMemoryTaskManager(inMemoryHistoryManager);
+    }
     @BeforeEach
     void init() {
-        taskManager = Managers.getDefault();
+        super.setUp();
     }
 
     @DisplayName("Добавляет задачи разного типа")
@@ -31,15 +34,14 @@ class InMemoryTaskManagerTest {
         SubTask subTask = new SubTask("SubTask", "Test");
         Task task = new Task("Task", "Test");
 
-        taskManager.createEpic(epic);
-        taskManager.createSubTask(subTask);
-        taskManager.createTask(task);
+        TaskManager.createEpic(epic);
+        TaskManager.createSubTask(subTask);
+        TaskManager.createTask(task);
 
-        assertNotNull(taskManager.getIdEpic(epic.getId()));
-        assertNotNull(taskManager.getIdSubtasks(subTask.getId()));
-        assertNotNull(taskManager.getIdTask(task.getId()));
+        assertNotNull(TaskManager.getIdEpic(epic.getId()));
+        assertNotNull(TaskManager.getIdSubtasks(subTask.getId()));
+        assertNotNull(TaskManager.getIdTask(task.getId()));
     }
-
     @DisplayName("Их поиск по Id")
     @Test
     void canFindById() {
@@ -48,19 +50,18 @@ class InMemoryTaskManagerTest {
         SubTask subTask = new SubTask("SubTask", "Test");
         Task task = new Task("Task", "Test");
 
-        taskManager.createEpic(epic);
-        taskManager.createSubTask(subTask);
-        taskManager.createTask(task);
+        TaskManager.createEpic(epic);
+        TaskManager.createSubTask(subTask);
+        TaskManager.createTask(task);
 
-        Epic foundEpic = taskManager.getIdEpic(epic.getId());
-        SubTask foundSubTask = taskManager.getIdSubtasks(subTask.getId());
-        Task foundTask = taskManager.getIdTask(task.getId());
+        Epic foundEpic = TaskManager.getIdEpic(epic.getId());
+        SubTask foundSubTask = TaskManager.getIdSubtasks(subTask.getId());
+        Task foundTask = TaskManager.getIdTask(task.getId());
 
         assertEquals(epic, foundEpic);
         assertEquals(subTask, foundSubTask);
         assertEquals(task, foundTask);
     }
-
     @DisplayName("Проверка конфликта сгенерированного и заданного Id")
     @Test
     void compareGenerateIdAndSetId() {
@@ -73,28 +74,26 @@ class InMemoryTaskManagerTest {
         inMemoryTaskManager.createTask(task_1);
         inMemoryTaskManager.createTask(task_2);
 
-        task_2.setId(inMemoryTaskManager.generateId() + random.nextInt(inMemoryTaskManager.tasks.size()));
+        task_2.setId(inMemoryTaskManager.generateId() + random.nextInt(inMemoryTaskManager.getAllTasks().size()));
         assertNotEquals(task_1.getId(), task_2.getId());
     }
-
     @DisplayName("Неизменность задач по полям при добавлении в Manager")
     @Test
     void cantFixCreatedPropertys() {
-        Task task = new Task("Тестовая задача");
+        Task task = new Task("Тестовая задача","Назначение");
 
-        Task taskCopy = new Task(task.getName());
+        Task taskCopy = new Task(task.getName(),task.getDescription());
         taskCopy.setId(task.getId());
-        taskCopy.setStatus(task.getStatus());
+        taskCopy.setTasksStatus(task.getTasksStatus());
         taskCopy.setDescription(task.getDescription());
 
-        taskManager.createTask(task);
+        TaskManager.createTask(task);
 
         assertEquals(taskCopy.getId(), task.getId());
         assertEquals(taskCopy.getName(), task.getName());
         assertEquals(taskCopy.getDescription(), task.getDescription());
-        assertEquals(taskCopy.getStatus(), task.getStatus());
+        assertEquals(taskCopy.getTasksStatus(), task.getTasksStatus());
     }
-
     @Test
     @DisplayName("Проверка калькуляции статуса Эпика")
     void showCalculateEpicStatus() {
@@ -103,26 +102,26 @@ class InMemoryTaskManagerTest {
         SubTask subTask2 = new SubTask("Test subTask2", "test_subTask2");
         SubTask subTask3 = new SubTask("Test subTask3", "test_subTask3");
 
-        taskManager.createEpic(epic);
-        taskManager.createSubTask(subTask1);
-        taskManager.createSubTask(subTask2);
-        taskManager.createSubTask(subTask3);
+        TaskManager.createEpic(epic);
+        TaskManager.createSubTask(subTask1);
+        TaskManager.createSubTask(subTask2);
+        TaskManager.createSubTask(subTask3);
 
-        assertEquals(EnumStatus.NEW, epic.getStatus());
+        assertEquals(TasksStatus.NEW, epic.getTasksStatus());
 
-        subTask1.setStatus(EnumStatus.DONE);
+        subTask1.setTasksStatus(TasksStatus.DONE);
 
-        taskManager.calculateEpic(epic);
+        TaskManager.calculateEpicStatus(epic);
 
-        assertEquals(EnumStatus.IN_PROGRESS, epic.getStatus());
+        assertEquals(TasksStatus.IN_PROGRESS, epic.getTasksStatus());
 
-        subTask1.setStatus(EnumStatus.DONE);
-        subTask2.setStatus(EnumStatus.DONE);
-        subTask3.setStatus(EnumStatus.DONE);
+        subTask1.setTasksStatus(TasksStatus.DONE);
+        subTask2.setTasksStatus(TasksStatus.DONE);
+        subTask3.setTasksStatus(TasksStatus.DONE);
 
-        taskManager.calculateEpic(epic);
+        TaskManager.calculateEpicStatus(epic);
 
-        assertEquals(EnumStatus.DONE, epic.getStatus());
+        assertEquals(TasksStatus.DONE, epic.getTasksStatus());
     }
     @Test
     @DisplayName("Проверка удаления Эпика и его Сабтасков")
@@ -131,21 +130,21 @@ class InMemoryTaskManagerTest {
         SubTask subTask1 = new SubTask("Test subTask1", "test_subTask1");
         SubTask subTask2 = new SubTask("Test subTask2", "test_subTask2");
 
-        taskManager.createEpic(epic1);
-        taskManager.createSubTask(subTask1);
-        taskManager.createSubTask(subTask2);
+        TaskManager.createEpic(epic1);
+        TaskManager.createSubTask(subTask1);
+        TaskManager.createSubTask(subTask2);
 
         Epic epic2 = new Epic("Test epic2", "test2");
         SubTask subTask3 = new SubTask("Test subTask3", "test_subTask3");
         SubTask subTask4 = new SubTask("Test subTask4", "test_subTask4");
 
-        taskManager.createEpic(epic2);
-        taskManager.createSubTask(subTask3);
-        taskManager.createSubTask(subTask4);
+        TaskManager.createEpic(epic2);
+        TaskManager.createSubTask(subTask3);
+        TaskManager.createSubTask(subTask4);
 
-        taskManager.deleteEpic(epic1.getId());
+        TaskManager.deleteEpic(epic1.getId());
 
-        int epicsSize = taskManager.getAllEpics().size();
+        int epicsSize = TaskManager.getAllEpics().size();
 
         assertNotEquals(epic1.getSubTasks().size(),epic2.getSubTasks().size());
         assertEquals(1,epicsSize);
@@ -157,22 +156,19 @@ class InMemoryTaskManagerTest {
         SubTask subTask1 = new SubTask("Test subTask1", "test_subTask1");
         SubTask subTask2 = new SubTask("Test subTask2", "test_subTask2");
 
-        taskManager.createEpic(epic);
-        taskManager.createSubTask(subTask1);
-        taskManager.createSubTask(subTask2);
+        TaskManager.createEpic(epic);
+        TaskManager.createSubTask(subTask1);
+        TaskManager.createSubTask(subTask2);
 
         String nameEpic = epic.getName();
         String descriptionEpic = epic.getDescription();
         epic.setName("new name");
         epic.setDescription("new description");
 
-        taskManager.updateEpic(epic);
+        TaskManager.updateEpic(epic);
 
         assertNotEquals(nameEpic,epic.getName());
         assertNotEquals(descriptionEpic,epic.getDescription());
-
     }
-
-
 
 }

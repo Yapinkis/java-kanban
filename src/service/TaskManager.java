@@ -5,11 +5,10 @@ import model.SubTask;
 import model.Task;
 
 import java.util.List;
+import java.util.Set;
 
 public interface TaskManager {
-    List<Task> getHistory();
 
-    //Набор метододов для задач Tasks
     List<Task> getAllTasks();
 
     void clearAllTasks();
@@ -18,11 +17,16 @@ public interface TaskManager {
 
     Task createTask(Task task);
 
+    Set<Task> getPrioritizedTasks();
+
+    boolean checkValidation(Task task);
+
+    boolean checkWorkTime(Task task);
+
     void updateTask(Task task);
 
     void deleteTask(int id);
 
-    //Набор метододов для подзадач SubTasks
     List<SubTask> getAllSubTasks();
 
     void clearAllSubTasks();
@@ -35,14 +39,13 @@ public interface TaskManager {
 
     void deleteSubTask(int id);
 
-    //Набор метододов для Эпиков Epics
     List<Epic> getAllEpics();
 
     void clearAllEpics();
 
     Epic getIdEpic(int id);
 
-    Epic createEpic(Epic epic);
+    Task createEpic(Epic epic);
 
     void updateEpic(Epic epic);
 
@@ -52,7 +55,8 @@ public interface TaskManager {
 
     int findEpic();
 
-    void calculateEpic(Epic epic);
-
     List<SubTask> getAllSubTasksByEpic(Epic epic);
+
+    List<Task> getHistoryHManager();
+
 }
