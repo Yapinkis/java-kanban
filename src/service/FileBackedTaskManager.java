@@ -17,11 +17,7 @@ import java.util.List;
 public class FileBackedTaskManager extends InMemoryTaskManager {
 
     static final Path path = Paths.get("resources/TasksHistory.csv");
-    //Можно же переменные пути сделать глобальными переменными класса?
-    //Или лучше инициализировать её каждый раз внутри метода?
     ArrayList<Integer> calc = new ArrayList<>();
-    //Эта переменная для подсчёта Id которые уже добавлены в историю, что бы избежать дублирования
-    //при записи в файл при вызове метода makeBrowsingHistory
 
     public FileBackedTaskManager(HistoryManager historyManager) {
         super(historyManager);
@@ -35,7 +31,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     }
 
     @Override
-    public Task createEpic(Epic epic) {
+    public Epic createEpic(Epic epic) {
             super.createEpic(epic);
             save();
             return epic;
@@ -49,8 +45,6 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     }
 
     public void save() throws ManagerSaveException {
-        //Я отредактировал метод, теперь он перезаписывает в файл все строки каждый раз, когда вызывается метод
-        //Наверное это более ресурснозатратно, но позволяет избежать ошибок и дублирования строк
         List<Task> history = historyManager.getHistory();
         try (FileWriter fileWriter = new FileWriter(path.toFile(), StandardCharsets.UTF_8, true)) {
             Files.write(path, Collections.emptyList());

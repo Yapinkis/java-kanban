@@ -1,6 +1,6 @@
 package service;
 
-import exceptions.ManagerSaveException;
+import exceptions.TimePeriodsException;
 import model.*;
 
 import java.time.Duration;
@@ -89,8 +89,6 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void deleteTask(int id) {
         historyManager.remove(tasks.get(id));
-        //Кажется я немного запутался...У нас по условию ТЗ6 нужно было удалять из истории при удалении задачи:
-        /* Добавьте вызов метода при удалении задач, чтобы они удалялись также из истории просмотров.*/
         tasks.remove(id);
     }
 
@@ -184,7 +182,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public Task createEpic(Epic epic) {
+    public Epic createEpic(Epic epic) {
         if (!checkValidation(epic)) {
             throw new IllegalArgumentException("Не соотвествуют формату - Имя, описание");
         }
@@ -194,7 +192,7 @@ public class InMemoryTaskManager implements TaskManager {
         if (!epic.getStartTime().equals(Task.defaultTime) && !checkWorkTime(epic)) {
             tasksTreeSet.add(epic);
         }
-        return null;
+        return epic;
     }
 
     @Override
@@ -247,11 +245,8 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public Set<Task> getPrioritizedTasks() {
-        return new TreeSet<>(tasksTreeSet);
+        return tasksTreeSet;
     }
-    //а разве вариант с return tasksTreeSet не даёт открытый доступ к tasksTreeSet и это то, что я постоянно правил
-    //У меня раньше было много замечаний по этому поводу, что я как раз возвращал оригинал. Или это ситуативная штука?
-    //Если да,то как определить, когда давать прямой доступ, а когда передавать копию?
 
     @Override
     public boolean checkWorkTime(Task task) {
@@ -280,7 +275,7 @@ public class InMemoryTaskManager implements TaskManager {
         boolean result;
         result = getPrioritizedTasks().stream().anyMatch(x -> x.getStartTime().isBefore(x2) && x.getEndTime().isAfter(x1));
         if (result) {
-            throw new ManagerSaveException("Даты добавления задач совпадают");
+            throw new TimePeriodsException("Даты добавления задач совпадают");
         }
         return result;
     }
@@ -360,7 +355,6 @@ public class InMemoryTaskManager implements TaskManager {
                     return editEpic;
                 });
                 break;
-                //Или этот метод тоже нужно как-то разбить на подметоды?
         }
     }
 

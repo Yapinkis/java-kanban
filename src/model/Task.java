@@ -6,7 +6,7 @@ import java.util.Objects;
 
 public class Task {
 
-    private int id = 1;
+    private Integer id = null;
     private String name;
     private String description;
     private TasksStatus tasksStatus;
@@ -14,6 +14,16 @@ public class Task {
     protected Duration duration;
     protected LocalDateTime startTime;
     public static final LocalDateTime defaultTime = LocalDateTime.of(1,1,1,1,1);
+
+    public Task(Integer id, String name, String description, long duration, int year, int month, int day, int hour, int minute) {
+        this.id = id;
+        this.tasksType = TasksType.TASK;
+        this.name = name;
+        this.tasksStatus = TasksStatus.NEW;
+        this.description = description;
+        this.startTime = LocalDateTime.of(year,month,day,hour,minute);
+        this.duration = Duration.ofMinutes(duration);
+    }
 
     public Task(String name, String description, long duration, int year, int month, int day, int hour, int minute) {
         this.tasksType = TasksType.TASK;
@@ -39,15 +49,6 @@ public class Task {
         this.tasksStatus = TasksStatus.NEW;
         this.description = description;
         this.startTime = defaultTime;
-        //У нас в ТЗ8 есть такой пункт:
-
-        /*Дата начала задачи по каким-то причинам может быть не задана. Тогда при добавлении её не следует учитывать в
-        списке задач и подзадач, отсортированных по времени начала. Такая задача не влияет на приоритет других, а при
-        попадании в список может сломать логику работы компаратора.*/
-
-        //Только я вместо null у startTime или LocalDateTime.now устанавливаю значение переменной defaultTime,
-        //а все остальные методы, которые считают значения просто не учитывают задачи в которых при создании не
-        //было задано значение startTime
 
         this.duration = Duration.ofMinutes(duration);
     }
@@ -61,12 +62,15 @@ public class Task {
         this.duration = Duration.ofMinutes(0);
     }
 
+    public Task() {
 
-    public int getId() {
+    }
+
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -112,6 +116,10 @@ public class Task {
 
     public void setStartTime(Task task) {
         this.startTime = task.getStartTime();
+    }
+
+    public void setStartTime(LocalDateTime time) {
+        this.startTime = time;
     }
 
     public Duration getDuration() {

@@ -6,8 +6,15 @@ import java.util.Objects;
 
 public class SubTask extends Task {
 
-    public SubTask(String name, String description, int duration, int year, int month, int day, int hour, int minute) {
+    public SubTask(String name, String description, long duration, int year, int month, int day, int hour, int minute) {
         super(name, description);
+        this.tasksType = TasksType.SUBTASK;
+        this.startTime = LocalDateTime.of(year,month,day,hour,minute);
+        this.duration = Duration.ofMinutes(duration);
+    }
+
+    public SubTask(Integer id, String name, String description, long duration, int year, int month, int day, int hour, int minute) {
+        super(name, description, id);
         this.tasksType = TasksType.SUBTASK;
         this.startTime = LocalDateTime.of(year,month,day,hour,minute);
         this.duration = Duration.ofMinutes(duration);
@@ -20,14 +27,14 @@ public class SubTask extends Task {
         this.duration = Duration.ofMinutes(0);
     }
 
-    public SubTask(String name, String description, int duration, LocalDateTime time) {
+    public SubTask(String name, String description, long duration, LocalDateTime time) {
         super(name, description);
         this.tasksType = TasksType.SUBTASK;
         this.startTime = time;
         this.duration = Duration.ofMinutes(duration);
     }
 
-    public SubTask(String name, String description, int duration) {
+    public SubTask(String name, String description, long duration) {
         super(name, description);
         this.tasksType = TasksType.SUBTASK;
         this.startTime = Task.defaultTime;

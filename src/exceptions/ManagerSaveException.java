@@ -1,5 +1,6 @@
 package exceptions;
-public class ManagerSaveException extends RuntimeException {
+
+public class ManagerSaveException extends BaseException {
     public ManagerSaveException(String message) {
         super(message);
     }
@@ -8,4 +9,3 @@ public class ManagerSaveException extends RuntimeException {
         super(message, exception);
     }
 }
-

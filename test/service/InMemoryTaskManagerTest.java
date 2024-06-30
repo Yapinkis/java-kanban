@@ -89,7 +89,6 @@ class InMemoryTaskManagerTest extends TaskManagerTest <InMemoryTaskManager>{
 
         TaskManager.createTask(task);
 
-        assertEquals(taskCopy.getId(), task.getId());
         assertEquals(taskCopy.getName(), task.getName());
         assertEquals(taskCopy.getDescription(), task.getDescription());
         assertEquals(taskCopy.getTasksStatus(), task.getTasksStatus());
